@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' upload='true' generator='JOSM'>
+  <bounds minlat='38.9983319' minlon='-8.8298968' maxlat='46.9992807' maxlon='15.8310716' origin='CGImap 0.3.1 (4439 thorn-03.openstreetmap.org)' />
+  <node id='771979611' timestamp='2010-06-13T20:13:41Z' uid='5265' user='ivansanchez' visible='true' version='1' changeset='4982478' lat='38.6013211107751' lon='-8.232963918187217' />
+  <node id='772122571' timestamp='2010-06-13T21:13:03Z' uid='5265' user='ivansanchez' visible='true' version='1' changeset='4983101' lat='41.9988363' lon='2.8303674' />
+  <node id='772168951' timestamp='2010-06-13T21:38:45Z' uid='5265' user='ivansanchez' visible='true' version='1' changeset='4983101' lat='46.41742817147573' lon='1.5662577487029623' />
+  <node id='772230315' timestamp='2010-06-13T22:15:50Z' uid='5265' user='ivansanchez' visible='true' version='1' changeset='4983452' lat='35.8099611071221' lon='4.435773158743658' />
+  <node id='772249275' timestamp='2010-06-13T22:22:49Z' uid='5265' user='ivansanchez' visible='true' version='1' changeset='4983452' lat='45.842598527867466' lon='15.057546825511011' />
+  <way id='61943946' timestamp='2010-06-14T22:14:12Z' uid='5265' user='ivansanchez' visible='true' version='2' changeset='4992067'>
+    <nd ref='772249275' />
+    <nd ref='772122571' />
+    <tag k='highway' v='residential' />
+    <tag k='local_code' v='0642' />
+    <tag k='maxspeed' v='50' />
+    <tag k='name' v='Carrer de la Torre de Sant Lluís' />
+    <tag k='name:ca' v='Carrer de la Torre de Sant Lluís' />
+    <tag k='source' v='Ajuntament de Girona' />
+  </way>
+  <way id='61944204' timestamp='2010-06-15T00:26:03Z' uid='5265' user='ivansanchez' visible='true' version='3' changeset='4992617'>
+    <nd ref='772122571' />
+    <nd ref='771979611' />
+    <tag k='highway' v='residential' />
+    <tag k='local_code' v='0005' />
+    <tag k='maxspeed' v='50' />
+    <tag k='name' v='Carrer de l&apos;Abat Escarré' />
+    <tag k='name:ca' v='Carrer de l&apos;Abat Escarré' />
+    <tag k='source' v='Ajuntament de Girona' />
+  </way>
+  <way id='61945707' timestamp='2010-06-14T22:30:12Z' uid='5265' user='ivansanchez' visible='true' version='2' changeset='4992067'>
+    <nd ref='772230315' />
+    <nd ref='772122571' />
+    <nd ref='772168951' />
+    <tag k='highway' v='residential' />
+    <tag k='local_code' v='0232' />
+    <tag k='maxspeed' v='50' />
+    <tag k='name' v='Carrer de Francesc Macià' />
+    <tag k='name:ca' v='Carrer de Francesc Macià' />
+    <tag k='source' v='Ajuntament de Girona' />
+  </way>
+  <relation id='1010270' timestamp='2010-06-25T03:13:54Z' uid='5265' user='ivansanchez' visible='true' version='1' changeset='5070728'>
+    <member type='way' ref='63938286' role='outer' />
+    <tag k='building' v='yes' />
+    <tag k='local_code' v='6465' />
+    <tag k='source' v='Ajuntament de Girona' />
+    <tag k='type' v='multipolygon' />
+  </relation>
+</osm>
