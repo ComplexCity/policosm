@@ -27,15 +27,20 @@ import matplotlib.pyplot as plt
 from descartes.patch import PolygonPatch
 import colorlover as cl
 from shapely.geometry import Polygon, shape
+import random
+
 
 from policosm.extractors.buildingsPolygons import *
-import policosm.geo_networks as pocogeo
+import policosm.geoNetworks as pocogeo
 from policosm.functions import *
 
-def drawBuildings(polygons):
+def drawBuildings(polygons, displayRatio=1.0):
 	fig = plt.figure()
 	ax = fig.add_subplot(111)	
 	for feature in polygons['features']:
+		if displayRatio < 1.0:
+			if random.random() >= displayRatio:
+				continue
 		polygon = shape(feature['geometry'])
 		patch = PolygonPatch(polygon, facecolor='#FD7400', edgecolor='#FD7400', alpha=0.5, zorder=1)
 		ax.add_patch(patch)
@@ -48,6 +53,6 @@ def drawBuildings(polygons):
 	plt.show()
 
 if __name__ == "__main__":
-	filename = '../tests/ajaccio-extract.osm'
+	filename = '/Volumes/Fabien/Research/cities-pictures/data/France/1-pbf/74173.pbf'
 	polygons = buildingsPolygons(filename)
 	drawBuildings(polygons)

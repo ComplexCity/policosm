@@ -64,7 +64,7 @@ class Buildings(object):
 				if tags['type'] == 'multipolygon':
 					self.relations[osmid] = members
 
-	def getPolygons(self):
+	def getPolygons(self, keepUncompletePolygons=True):
 		features = []
 
 		# for polygons in relations (especially outer/innner) 
@@ -74,13 +74,20 @@ class Buildings(object):
 			polygons = []
 			properties = {}
 			for osmid,relType,role in members:
+				# if the way does not belong to a building
+				if osmid not in self.ways:
+					continue
+				elif not self.ways[osmid][1]:
+					continue
 				polygon = Polygon([self.coordinates[ref] for ref in self.ways[osmid][0]])
 				polygons.append(polygon)
+			
+			if len(polygons) < 2:
+				continue
 
 			# sort polygons in whithinness order
-			polygons = sorted(polygons, key=Within, reverse=True)	
-
 			# if they are all inside the first we make a polygon with holes
+			polygons = sorted(polygons, key=Within, reverse=True)	
 			if Within(polygons[1]) < Within(polygons[0]):
 				polygon = geojson.Polygon([list(mapping(p)['coordinates'][0]) for p in polygons])
 				refs,building,amenity,wheelchair,buildingLevels = self.ways[members[0][0]]
@@ -92,7 +99,12 @@ class Buildings(object):
 		
 		for osmid, (refs,building,amenity,wheelchair,buildingLevels) in self.ways.iteritems():
 			if building:
-				polygon = [[tuple(self.coordinates[ref]) for ref in refs]]
+				polygon = [[tuple(self.coordinates[ref]) for ref in refs if ref in self.coordinates]] 
+				if keepUncompletePolygons:
+					if len(polygon[0]) < 3: 
+						continue
+				elif len(polygon[0]) != len(refs):
+					continue
 				properties = {'osmid':osmid,'amenity':amenity,'wheelchair':wheelchair,'levels':buildingLevels}
 				features.append(geojson.Feature(geometry=geojson.Polygon(polygon), properties=properties))
 		featureCollection = geojson.FeatureCollection(features)
@@ -102,5 +114,6 @@ if __name__ == "__main__":
 	from imposm.parser import OSMParser
 	buildings = Buildings()
 	osmparser = OSMParser(concurrency=4, coords_callback=buildings.nodes, ways_callback=buildings.osmways, relations_callback=buildings.osmrelations)
-	osmparser.parse('../tests/ajaccio-testing.osm')
-	print geojson.dumps(buildings.getPolygons())
+	osmparser.parse('/Users/fabien/workspace/cities-pictures/data/France/1-pbf/lille.osm.pbf')
+	# print geojson.dumps(buildings.getPolygons())
+	print '[info] there is',len(buildings.getPolygons()['features'])

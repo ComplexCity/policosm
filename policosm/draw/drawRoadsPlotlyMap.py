@@ -30,7 +30,7 @@ import networkx as nx
 import colorlover as cl
 
 from policosm.extractors.roadsGraph import *
-import policosm.geo_networks as pocogeo
+import policosm.geoNetworks as pocogeo
 from  policosm.functions.getCentroidFromRoadsGraph import *
 
 my_colors = cl.scales['9']['seq']['Purples']

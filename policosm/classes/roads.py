@@ -17,11 +17,12 @@ return
 '''
 
 import networkx as nx
+import re
 
 import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+
 from policosm.utils.roads import levels
-import re
 
 class Roads(object):
 

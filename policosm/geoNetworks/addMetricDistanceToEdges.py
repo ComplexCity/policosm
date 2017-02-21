@@ -26,8 +26,7 @@ return
 '''
 
 import networkx as nx
-import osr, ogr
-
+from osgeo import ogr, osr
 
 def addMetricDistanceToEdge(x1,y1,x2,y2, epsgCode):
 	# we assume initial epsg is wsg84 (merctor projection)
@@ -39,7 +38,7 @@ def addMetricDistanceToEdge(x1,y1,x2,y2, epsgCode):
 		destinationProjection.ImportFromEPSG(epsgCode) # https://epsg.io/2154
 		coordTrans = osr.CoordinateTransformation(sourceProjection, destinationProjection)
 	
-	line = ogr.gometry(ogr.wkbLineString)
+	line = ogr.Geometry(ogr.wkbLineString)
 	line.AddPoint(x1,y1)
 	line.AddPoint(x2,y2)
 	if epsgCode != 4326:
@@ -61,7 +60,7 @@ def addMetricDistanceToEdges(graph, epsgCode):
 	
 	for edge in graph.edges():
 		node1, node2 =  edge
-		line = ogr.geometry(ogr.wkbLineString)
+		line = ogr.Geometry(ogr.wkbLineString)
 		line.AddPoint(graph.node[node1]['longitude'], graph.node[node1]['latitude'])
 		line.AddPoint(graph.node[node2]['longitude'], graph.node[node2]['latitude'])
 		if epsgCode != 4326:

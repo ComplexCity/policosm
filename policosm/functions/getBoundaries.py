@@ -78,9 +78,9 @@ if __name__ == "__main__":
 	testGraph.add_node(1,longitude=1.0, latitude=1.0)
 	testGraph.add_node(2,longitude=2.0, latitude=2.0)
 	testGraph.add_edge(1, 2,osmid=3,highway='residential',level=3, lanes=1, oneway=False)
-	print getRoadsBoundaries(testGraph)
+	assert getRoadsBoundaries(testGraph) == [1.0,1.0,2.0,2.0]
 
 	dump = '{"features": [{"geometry":{"coordinates": [[[2.38, 57.322], [23.194, -20.28], [-120.43, 19.15], [2.38, 57.322]], [[-5.21, 23.51], [15.21, -10.81], [-20.51, 1.51], [-5.21, 23.51]]], "type": "Polygon"},"type": "Feature"}]}'
 	polygons = geojson.loads(dump)
-	print getBuildingsBoundaries(polygons)
+	assert getBuildingsBoundaries(polygons) == [-120.43, -20.28, 23.194, 57.322]
 

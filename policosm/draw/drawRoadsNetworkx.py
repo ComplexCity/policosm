@@ -28,13 +28,13 @@ import networkx as nx
 import colorlover as cl
 
 from policosm.extractors.roadsGraph import *
-import policosm.geo_networks as pocogeo
+import policosm.geoNetworks as pocogeo
 from policosm.functions import *
 
 colors = [ (r/255,v/255,b/255) for r,v,b in cl.to_numeric(cl.scales['9']['seq']['Purples'])]
 edgeWidth=[1,1,1,1,1,2,2,3,3]
 
-def drawRoads(G):
+def drawRoads(G, edgeColorAttribute='level', edgeColorScale=9, nodeColorAttribute=None, nodeColorScale=None):
 		
 	pos={}
 	for n in G.nodes():
@@ -48,12 +48,12 @@ def drawRoads(G):
 		selectedEdges = [(u,v) for (u,v,d) in G.edges(data=True) if d['level'] == i]
 		selectedColors = [colors[i] for e in selectedEdges]
 		nx.draw_networkx_edges(G,pos,edgelist=selectedEdges,width=edgeWidth[i],edge_color=selectedColors)
-
+	
 	plt.show()
 
 
 if __name__ == "__main__":
-	filename = '/Volumes/Fabien/Research/cities-pictures/data/France/1-pbf/2A004.pbf'
+	filename = '/Volumes/Fabien/Research/cities-pictures/data/France/1-pbf/74173.pbf'
 	graph = roadsGraph(filename)
 	raw_count = len(graph.edges())
 	print 'raw',raw_count,'edges'

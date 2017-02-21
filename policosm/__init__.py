@@ -21,14 +21,17 @@ from policosm.utils import *
 import policosm.classes
 from policosm.classes import *
 
-import policosm.geo_networks
-from policosm.geo_networks import *
+import policosm.geoNetworks
+from policosm.geoNetworks import *
 
 import policosm.extractors
 from policosm.extractors import *
 
 import policosm.functions
 from policosm.functions import *
+
+import policosm.geoFunctions
+from policosm.geoFunctions import *
 
 import policosm.draw
 from policosm.draw import *
