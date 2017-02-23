@@ -1,0 +1,11 @@
+include README.md
+include LICENSE
+include ChangeLog
+
+#get example folder involved
+graft examples
+
+# Patterns to exclude from any directory
+global-exclude *~
+global-exclude *.pyo
+global-exclude *.pyc
