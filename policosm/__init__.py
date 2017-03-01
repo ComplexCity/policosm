@@ -11,10 +11,6 @@ Using
 #   Created in June 2016 in ComplexCity Lab
 #   @author: github.com/fpfaende
 
-
-import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
-
 import policosm.utils
 from policosm.utils import *
 
@@ -32,6 +28,3 @@ from policosm.functions import *
 
 import policosm.geoFunctions
 from policosm.geoFunctions import *
-
-import policosm.draw
-from policosm.draw import *

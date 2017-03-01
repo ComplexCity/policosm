@@ -15,15 +15,14 @@ setup(
         "numpy",
         "networkx",
         "rtree",
-        "matplotlib"
-        "descartes"
+        "matplotlib",
+        "descartes",
         "colorlover", 
         "plotly", 
         "imposm", 
         "sklearn",
-        "osgeo",
         "rdp"
-    ]
+    ],
 
     install_requires=[
         "shapely",
@@ -31,13 +30,12 @@ setup(
         "numpy",
         "networkx",
         "rtree",
-        "matplotlib"
-        "descartes"
+        "matplotlib",
+        "descartes",
         "colorlover", 
         "plotly", 
         "imposm", 
         "sklearn",
-        "osgeo",
         "rdp"
     ],
 

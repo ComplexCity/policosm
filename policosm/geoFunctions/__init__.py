@@ -1,2 +1,2 @@
-from policosm.geoFunctions.getEPSG import *
-from policosm.geoFunctions.nearest import *
+from .getEPSG import *
+from .nearest import *

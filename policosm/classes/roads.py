@@ -7,30 +7,30 @@ Created in February 2017 in ComplexCity Lab
 
 what it does
 	Roads sets callback functions for ways in osm files targeting roads
+	the osm roads are transform into graphs
 
 parameters
+	functions are called with callback from imposm.parser
+	nodes coordinates parameters are in the following format [[id,lon,lat],[id,lon,lat]]
+	edges ways 
 
 how it works
-
-return
+	create a series of nodes each time osm parser send nodes
+	test a series of rules to create edges each time osm parser send a way
+	the node contains latitude and longitude information
+	the edge contains ['lanes', 'osmid', 'footway', 'level', 'bicycle', 'oneway', 'highway'] informations
 
 '''
 
 import networkx as nx
 import re
 
-import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
-
 from policosm.utils.roads import levels
 
 class Roads(object):
-
-	graph = nx.Graph()
-	verbose = False
-
 	def __init__(self, verbose=False):
 		self.verbose = verbose
+		self.graph = nx.Graph()
 
 	def getGraph(self):
 		return self.graph
@@ -82,11 +82,13 @@ class Roads(object):
 						if self.verbose:
 							print 'lanes tag value error for',tags['lanes'],'for osmid',osmid,'default to 1'
 				
+				#TODO add sidewalk information
+
 				# update HIGHWAY information from the tag 'highway'
 				# if highway tag is not osm compliant, highway is defaulted to 'unclassified'
 				try:
 					highway.encode('ascii')
-				except UnicodeEncodeError:
+				except UnicodeDecodeError:
 					highway = 'unclassified'
 
 				for levelItem in levels['levels']:
@@ -102,44 +104,5 @@ class Roads(object):
 					level = 3
 
 				for i in range(1, len(refs)):
-					self.graph.add_edge(refs[i-1], refs[i], osmid=osmid, highway=str(highway), level=int(level), lanes=lanes, oneway=oneway)
-
-if __name__ == "__main__":
-	testGraph = nx.Graph()
-	testGraph.add_node(1,longitude=1.0, latitude=1.0)
-	testGraph.add_node(2,longitude=2.0, latitude=2.0)
-	testGraph.add_edge(1, 2,osmid=3,highway='residential',level=3, lanes=1, oneway=False)
-
-	roads = Roads()
-	roads.nodes([[1,1.0,1.0],[2,2.0,2.0]])
-	roads.edges([[3,{'highway':'residential', 'lanes':'yes'},[1,2]]])
-	
-	# test nodes
-	nl1 = list(testGraph.nodes(data=True))
-	nl2 = list(roads.graph.nodes(data=True))
-	d1 = dict(nl1)
-	d2 = dict(nl2)
-	assert d1 == d2
-
-	# test edges
-	from collections import defaultdict
-	d1 = defaultdict(dict)
-	d2 = defaultdict(dict)
-	c1 = 0
-	for c1,e in enumerate(testGraph.edges(data=True)):
-		u,v = e[0],e[1]
-		data = e[2:]
-		d1[u][v] = data
-		d1[v][u] = data
-		c2 = 0
-	for c2,e in enumerate(roads.graph.edges(data=True)):
-		u,v = e[0],e[1]
-		data = e[2:]
-		d2[u][v] = data
-		d2[v][u] = data
-	assert c1 == c2
-	assert d1 == d2
-
-
-
+					self.graph.add_edge(refs[i-1], refs[i], osmid=osmid, highway=str(highway), level=int(level), lanes=lanes, oneway=oneway, footway=footway, bicycle=bicycle)
 
