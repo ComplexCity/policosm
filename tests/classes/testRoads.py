@@ -4,16 +4,6 @@
 Created in February 2017 in ComplexCity Lab
 
 @author: github.com/fpfaende
-
-what it does
-	Roads sets callback functions for ways in osm files targeting roads
-
-parameters
-
-how it works
-
-return
-
 '''
 import pytest
 
@@ -32,7 +22,7 @@ def roadsData():
 	roads.edges([[3,{'highway':'residential', 'lanes':'yes'},[1,2]]])
 	return graph, roads.graph 
 
-class TestRoads:
+class Test_Roads_class:
 	def test_nodes(self, roadsData):
 		g1, g2 = roadsData
 		nl1 = list(g1.nodes(data=True))

@@ -1,0 +1,12 @@
+shapely
+geojson
+numpy
+networkx
+rtree
+matplotlib
+descartes
+colorlover
+plotly
+imposm
+sklearn
+rdp

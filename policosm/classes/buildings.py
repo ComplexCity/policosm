@@ -30,11 +30,12 @@ class Within(object):
 
 
 class Buildings(object):
-	coordinates = {}
-	ways = {}
-	relations = {}
-	buildings = {}
-
+	def __init__(self):
+		self.coordinates = {}
+		self.ways = {}
+		self.relations = {}
+		self.buildings = {}
+		
 	def nodes(self, coords):
 		for osmid, lon, lat in coords:
 			self.coordinates[osmid]=(lon, lat)

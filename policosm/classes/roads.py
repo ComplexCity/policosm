@@ -20,6 +20,8 @@ how it works
 	the node contains latitude and longitude information
 	the edge contains ['lanes', 'osmid', 'footway', 'level', 'bicycle', 'oneway', 'highway'] informations
 
+#TODO ADD MAX SPEED TO ROADS
+
 '''
 
 import networkx as nx

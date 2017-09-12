@@ -7,3 +7,4 @@ from .simplifyRDP import *
 from .linkNewNodes import *
 from .centrality import *
 from .connectGraphComponents import *
+from .convertNodesCoordinates import *

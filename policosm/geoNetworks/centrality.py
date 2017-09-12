@@ -12,9 +12,7 @@ parameters
 	graph
 
 how it works
-	1 - remove nodes without geographic informations (latitude or longitude)
-	2 - remove self referencing edges (loop on itself)
-	3 - remove isolated nodes (degree is 0 )
+
 
 return
 	graph minus alone or non-conform nodes

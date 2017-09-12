@@ -26,23 +26,22 @@ import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 
 from policosm.functions.getRtree import getGraphRtree
-from policosm.geoNetworks.linkNewNodes import nearestEdgeFromPoint, nearestNode, addMetricDistanceToEdge
+from policosm.geoNetworks.linkNewNodes import nearestEdgeFromPoint, addMetricDistanceToEdge
 from policosm.utils.roads import France
 
 class Distances(object):
-	verbose = False
-	graph = None
-	allowPublicTransportation = None
-	pedestrian = None
-	motorist = None
-	publicTransportion = None
-	r = None
-	weight = None
-	epsgDestination = None
 
-	def __init__(self, graph, weigth=None, verbose=False):
+
+	def __init__(self, graph, weight=None, verbose=False):
 		self.verbose = verbose
 		self.graph = graph
+		self.allowPublicTransportation = None
+		self.pedestrian = None
+		self.motorist = None
+		self.publicTransportion = None
+		self.r = None
+		self.weight = weight
+		self.epsgDestination = None
 
 	def setWeightForKDE(self, weight):
 		self.weight = weight

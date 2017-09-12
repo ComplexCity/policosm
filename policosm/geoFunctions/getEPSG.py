@@ -1,3 +1,19 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+'''
+Created in February 2017 in ComplexCity Lab
+
+@author: github.com/fpfaende
+
+what it does
+
+parameters
+
+how it works
+
+return
+
+'''
 
 import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')

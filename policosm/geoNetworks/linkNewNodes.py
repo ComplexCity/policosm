@@ -38,8 +38,6 @@ def nearestEdgeFromPoint(candidates, point):
 	nearestCouple = {}
 	for candidate in candidates:
 		line = json.loads(candidate)
-		point.distance(LineString(line['geometry']['coordinates']))
-		
 		nearestCouple[point.distance(LineString(line['geometry']['coordinates']))]=(line['properties'].values())
 	mindistance = min(nearestCouple.keys())
 	return nearestCouple[mindistance]
@@ -51,11 +49,20 @@ def distance(graph, source, target):
 def getKey(item):
     return item[1]
 
-def nearestNode(graph, source, candidates):
-	point = Point((graph.node[source]['longitude'], graph.node[source]['latitude']))
+# def nearestNode(graph, source, candidates):
+# 	point = Point((graph.node[source]['longitude'], graph.node[source]['latitude']))
+# 	nearestNode = {}
+# 	for candidate in candidates:
+# 		nearestNode[point.distance(Point((graph.node[candidate]['longitude'], graph.node[candidate]['latitude'])))] = candidate
+# 	mindistance = min(nearestNode.keys())
+# 	return nearestNode[mindistance]
+
+def nearestNodeFromLonLat(graph, longitude, latitude, candidates):
+	source = Point(longitude, latitude)
 	nearestNode = {}
 	for candidate in candidates:
-		nearestNode[point.distance(Point((graph.node[candidate]['longitude'], graph.node[candidate]['latitude'])))] = candidate
+		point = json.loads(candidate)
+		nearestNode[source.distance(Point(point['geometry']['coordinates']))] = point['id']
 	mindistance = min(nearestNode.keys())
 	return nearestNode[mindistance]
 
@@ -204,7 +211,7 @@ if __name__ == "__main__":
 	G = linkNewNodes(testGraph, newnodes)
 	print testGraph.nodes(data=True)
 
-	print 'there a',len(testGraph.nodes()),'nodes'
+	print 'there are',len(testGraph.nodes()),'nodes'
 	print testGraph[3]
 	eoriginal=[(u,v) for (u,v,d) in G.edges(data=True) if d['level'] == 3]
 	enew=[(u,v) for (u,v,d) in G.edges(data=True) if d['level'] == 2]

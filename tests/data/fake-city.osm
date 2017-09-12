@@ -114,7 +114,7 @@
 <!-- relations for building -->
 <relation id="1001">
   <tag k="type" v="multipolygon" />
-  <member type="way" id="105" role="outer" />
-  <member type="way" id="106" role="inner" />
+  <member type="way" ref="105" role="outer" />
+  <member type="way" ref="106" role="inner" />
 </relation>
 </osm>

@@ -27,7 +27,6 @@ from shapely.geometry import Point
 import json
 import networkx as nx
 import itertools
-import matplotlib.pyplot as plt
 
 import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
