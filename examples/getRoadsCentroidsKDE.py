@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 import networkx as nx
 import numpy as np
 import matplotlib.gridspec as gridspec
@@ -24,7 +25,11 @@ def _removeLevelTwoEdges(graph):
 
 
 if __name__ == "__main__":
-    graph = nx.read_gexf(path='/home/thanh-thao/UTSEUS/Project/Projet Complexcity/Saint-Malo.gexf')
+    script_dir = os.path.dirname(__file__)
+    rel_path = "data/Saint-Malo.gexf"
+    file_path = os.path.join(script_dir, rel_path)
+
+    graph = nx.read_gexf(path=file_path)
     graph = simplify(graph)
     graph = _convertGraphCoord(graph)
     graph = _removeLevelTwoEdges(graph)
