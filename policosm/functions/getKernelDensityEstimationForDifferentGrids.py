@@ -24,11 +24,8 @@ def getKernelDensityEstimationForDifferentGrids(nodes, metric='euclidean', metri
 
     # grid size every 100m, 250m, 500m
     # list of x and y for each grid sizes
-    # xy = [np.mgrid[xmin:xmax:i, ymin:ymax:i] for i in [100, 250, 500]]
-    xy = [np.mgrid[xmin:xmax:i, ymin:ymax:i]
-          if grid_sizes is not None
-          else np.mgrid[xmin:xmax:100, ymin:ymax:100]
-          for i in grid_sizes]
+    grids = grid_sizes if grid_sizes is not None else [100]
+    xy = [np.mgrid[xmin:xmax:i, ymin:ymax:i] for i in grids]
     # list of grids
     positions = [np.vstack([x.ravel(), y.ravel()]) for x, y in xy]
 
@@ -49,3 +46,24 @@ def getKernelDensityEstimationForDifferentGrids(nodes, metric='euclidean', metri
         kernel.fit(zip(*values))
 
     return kernel, positions, xy, bbox, bandwidth
+
+
+def getGrid(nodes, grid_sizes=None):
+    lon = []
+    lat = []
+    for nlon, nlat in nodes:
+        lon.append(nlon)
+        lat.append(nlat)
+    lon = np.array(lon)
+    lat = np.array(lat)
+
+    xmin, xmax = min(lon), max(lon)
+    ymin, ymax = min(lat), max(lat)
+
+    # grid size every 100m, 250m, 500m
+    # list of x and y for each grid sizes
+    grids = grid_sizes if grid_sizes is not None else [100]
+    xy = [np.mgrid[xmin:xmax:i, ymin:ymax:i] for i in grids]
+    # list of grids
+    positions = [np.vstack([x.ravel(), y.ravel()]) for x, y in xy]
+    return [zip(*pos) for pos in positions]

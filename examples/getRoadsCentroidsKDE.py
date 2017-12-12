@@ -8,7 +8,7 @@ from policosm import simplify, epsgFromCoordinates, convertNodesCoordinates, get
 from policosm.functions.getKernelDensityEstimationForDifferentGrids import getKernelDensityEstimationForDifferentGrids
 
 
-def _convertGraphCoord(graph):
+def convertGraphCoord(graph):
     epsg_node = graph.node[graph.node.keys()[0]]
     longitude, latitude = epsg_node['longitude'], epsg_node['latitude']
 
@@ -17,7 +17,7 @@ def _convertGraphCoord(graph):
 
 
 #  removes level two edges from graph (services, ..)
-def _removeLevelTwoEdges(graph):
+def removeLevelTwoEdges(graph):
     level_two_edges = [(u, v) for (u, v, d) in graph.edges(data=True) if d['level'] == 2]
     graph.remove_edges_from(level_two_edges)
 
@@ -31,8 +31,8 @@ if __name__ == "__main__":
 
     graph = nx.read_gexf(path=file_path)
     graph = simplify(graph)
-    graph = _convertGraphCoord(graph)
-    graph = _removeLevelTwoEdges(graph)
+    graph = convertGraphCoord(graph)
+    graph = removeLevelTwoEdges(graph)
     roads_centroids = getCentroidsFromRoadsGraph(graph)
     kernel, positions, xy, bbox, bandwidth = getKernelDensityEstimationForDifferentGrids(
         roads_centroids, metric='euclidean', optimizeBandwidth=True, bwmin=10, bwmax=100, grid_sizes=[100, 250, 500])
