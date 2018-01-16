@@ -26,7 +26,7 @@ def convertPointsCoordinates(points, sourceEPSG, targetEPSG):
 # Grids is a list of grids, one grid being a list of points
 def getGridsPointsCSV(grids):
     for idx, grid in enumerate(grids):
-        with open('grid' + str(grid_sizes[idx]) + '.csv', 'wb') as csvfile:
+        with open('gridVernon' + str(grid_sizes[idx]) + '.csv', 'wb') as csvfile:
             writer = csv.writer(csvfile)
             for coord in grid:
                 writer.writerow(coord)
@@ -34,12 +34,12 @@ def getGridsPointsCSV(grids):
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(__file__)
-    rel_path = "data/Saint-Malo.gexf"
+    rel_path = "data/vernon.gexf"
     file_path = os.path.join(script_dir, rel_path)
 
     graph = nx.read_gexf(path=file_path)
     graph = simplify(graph)
-    graph = convertGraphCoord(graph)
+    epsg, graph = convertGraphCoord(graph)
     graph = removeLevelTwoEdges(graph)
     roads_centroids = getCentroidsFromRoadsGraph(graph)
 
@@ -49,6 +49,6 @@ if __name__ == "__main__":
     # Convert grids of roads centroids in epsg 4326
     converted_grids = []
     for grid in grids:
-        converted_grids.append(convertPointsCoordinates(grid, 3948, 4326))
+        converted_grids.append(convertPointsCoordinates(grid, epsg, 4326))
 
     getGridsPointsCSV(converted_grids)
