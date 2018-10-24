@@ -23,22 +23,25 @@ Algorithm based on osmid will perform with unpredictable results
 
 '''
 
+import sys
+import json
 import hashlib
 import networkx as nx
-import json
-from shapely.geometry import Polygon, LineString, Point, shape
 
-import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+from shapely.geometry import LineString, Point
 
-from policosm.functions.getRtree import *
-from policosm.geoNetworks.addMetricDistanceToEdges import addMetricDistanceToEdge
+sys.path.insert(0, '/home/alex/Bureau/policosm')
+from functions.getRtree import *
+from geoNetworks.addMetricDistanceToEdges import addMetricDistanceToEdge
 
 def nearestEdgeFromPoint(candidates, point):
 	nearestCouple = {}
 	for candidate in candidates:
+		print "Candidat : ", candidate
+		print "Point : ", point
 		line = json.loads(candidate)
 		nearestCouple[point.distance(LineString(line['geometry']['coordinates']))]=(line['properties'].values())
+	print nearestCouple
 	mindistance = min(nearestCouple.keys())
 	return nearestCouple[mindistance]
 
@@ -66,168 +69,459 @@ def nearestNodeFromLonLat(graph, longitude, latitude, candidates):
 	mindistance = min(nearestNode.keys())
 	return nearestNode[mindistance]
 
-def linkNewNodes(graph, nodes, rtreeFilename=None, epsgCode=4326, level=2, highway='path', threshold=0.0):
-	r = getGraphRtree(graph,generator='edges',filename=rtreeFilename,interleaved=True)
-	modifiedEdges = set()
-	newNodes = set()
 
-	for lon, lat in nodes:
-		z = Point(lon,lat)
+def linkNode_OSM(graph, node, edge,diriged = False, bus=False, epsgCode=4326, level=2, highway='path', threshold=0.0):
 
-		# create a new integer as id for the new node z we try to add
-		zid = -int(hashlib.md5(z.wkt).hexdigest(), 16) 
+	modifiedEdges, newNodes = set(), set()
 
-		# get the closest edge from the new node to wire it to it 
-		hits = r.nearest((z.x, z.y, z.x,z.y), 3, objects="raw")
-		u,v =  nearestEdgeFromPoint(list(hits), z)
+	z = Point(graph.nodes[node]['longitude'],graph.nodes[node]['latitude'])
 
-		# we got the nearest edge source and target
-		# if the projection of the new node z is inside the segment ([–o——] and not o [–———])
-		# 		we create a new node w on the edge and redistribute length
-		ucoo = (graph.node[u]['longitude'], graph.node[u]['latitude'])
-		vcoo = (graph.node[v]['longitude'], graph.node[v]['latitude'])
-		line = LineString([ucoo,vcoo])
-		lineLength = line.length
-		segmentLength = line.project(z)
+	# get the closest edge from the new node to wire it to it 
+	u,v =  edge[0], edge[1]
 
-		if segmentLength == 0:
-			wid = u
-			w = Point(ucoo[0],ucoo[1])
-		elif segmentLength == lineLength:
-			wid = v
-			w = Point(vcoo[0],vcoo[1])
-		else:
-			x,y = line.interpolate(segmentLength).coords[0]
-			w = Point(x,y)
-			wid  = -int(hashlib.md5(w.wkt).hexdigest(), 16)
-			newNodes.add(wid)
+	# we got the nearest edge source and target
+	# if the projection of the new node z is inside the segment ([–o——] and not o [–———])
+	# 		we create a new node w on the edge and redistribute length
+	ucoo = (graph.nodes[u]['longitude'], graph.nodes[u]['latitude'])
+	vcoo = (graph.nodes[v]['longitude'], graph.nodes[v]['latitude'])
+	line = LineString([ucoo,vcoo])
+	lineLength = line.length
+	segmentLength = line.project(z)
 
+	if segmentLength == 0:
+		wid = u
+		w = Point(ucoo[0],ucoo[1])
+	elif segmentLength == lineLength:
+		wid = v
+		w = Point(vcoo[0],vcoo[1])
+	else:
+		#print "COUCOU"
+		x,y = line.interpolate(segmentLength).coords[0]
+		#print x,y, "COUCOU"
+		w = Point(x,y)
+		wid  = -int(hashlib.md5(w.wkt).hexdigest(), 16)
+		newNodes.add(wid)
+
+		#print graph.has_edge(u,v)
+		#print graph.has_edge(v,u)
+
+		if bus == False :
+			graph.add_node(wid,longitude=x, latitude=y, utilisation='Linked(NoRtree)')
+		else :
+			graph.add_node(wid,longitude=x, latitude=y, utilisation='Linked(NoRtree)')
+		
+		if diriged :
+			if graph.has_edge(u,v) :
+				attributes = graph.get_edge_data(u,v)
+
+				if type(graph) == nx.classes.multidigraph.MultiDiGraph : 
+					for key,value in attributes.items() :
+
+						uwAttributes = value.copy()
+						wvAttributes = value.copy()
+
+						if 'length' in value:
+							uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+							wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+						
+						uwAttributes['policosm'] = True
+						wvAttributes['policosm'] = True
+
+						graph.remove_edge(u,v,key)
+						
+						ka = graph.add_edge(u,wid)
+						kb = graph.add_edge(wid,v)
+						Attributes = {(u,wid,ka) : uwAttributes, (wid,v,kb) : wvAttributes}
+
+						nx.set_edge_attributes(graph,Attributes)
+
+				else :
+					attributes = graph[u][v]
+
+					uwAttributes = attributes.copy()
+					wvAttributes = attributes.copy()
+
+					if 'length' in attributes:
+						uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+						wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+					
+					uwAttributes['policosm'] = True
+					wvAttributes['policosm'] = True
+
+					graph.remove_edge(u,v)
+					
+					Attributes = {(u,wid) : uwAttributes, (wid,v) : wvAttributes}
+					graph.add_edge(u,wid)
+					graph.add_edge(wid,v)
+					nx.set_edge_attributes(graph,Attributes)					
+
+
+			if graph.has_edge(v,u) :
+				attributes = graph.get_edge_data(v,u)
+
+				if type(graph) == nx.classes.multidigraph.MultiDiGraph : 
+					for key,value in attributes.items() :
+
+						uwAttributes = value.copy()
+						wvAttributes = value.copy()
+
+						if 'length' in value:
+							uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+							wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+						
+						uwAttributes['policosm'] = True
+						wvAttributes['policosm'] = True
+
+						graph.remove_edge(v,u,key)
+						
+						ka = graph.add_edge(v,wid)
+						kb = graph.add_edge(wid,u)
+						Attributes = {(v,wid,ka) : uwAttributes, (wid,u,kb) : wvAttributes}
+
+						nx.set_edge_attributes(graph,Attributes)
+
+				else :
+					attributes = graph[v][u]
+
+					uwAttributes = attributes.copy()
+					wvAttributes = attributes.copy()
+
+					if 'length' in attributes:
+						uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+						wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+					
+					uwAttributes['policosm'] = True
+					wvAttributes['policosm'] = True
+
+					graph.remove_edge(v,u)
+					
+					Attributes = {(v,wid) : uwAttributes, (wid,u) : wvAttributes}
+					graph.add_edge(v,wid)
+					graph.add_edge(wid,u)
+					nx.set_edge_attributes(graph,Attributes)
+
+		else :
 			attributes = graph[u][v]
+
 			uwAttributes = attributes.copy()
 			wvAttributes = attributes.copy()
-
-			if 'length' in attributes:
-				uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-				wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 			
 			uwAttributes['policosm'] = True
 			wvAttributes['policosm'] = True
-			
-			graph.add_node(wid,longitude=w.x, latitude=w.y)
-			graph.add_edge(u,wid, uwAttributes)
-			graph.add_edge(wid,v, wvAttributes)
-			
-			# add to the set for future rewiring 
-			# making sure it is unique one way of the other (uv, vu)
-			if u < v:
-				modifiedEdges.add((u,v))
-			else:
-				modifiedEdges.add((v,u))
- 		
- 		newAttributes = {}
-		newAttributes['level'] = level
-		newAttributes['highway'] = highway
-		newAttributes['osmid'] = '-1'
-		newAttributes['policosm'] = True
-		newAttributes['lanes'] = 1
-		newAttributes['oneway'] = False
-		newAttributes['policosm'] = True
-		if 'length' in graph[u][v]:
-			newAttributes['length'] = addMetricDistanceToEdge(z.x, z.y, w.x, w.y, epsgCode)
 
-		graph.add_node(zid, longitude=lon, latitude=lat)
-		graph.add_edge(zid, wid, newAttributes)
-
-	for u,v in modifiedEdges:
-		paths = nx.all_simple_paths(graph, source=u, target=v, cutoff=2)
-		
-		nodes = set()
-		previousNode = u
-		deleteUNodes = []
-		deleteVNodes = []
-		paths = nx.all_simple_paths(graph, source=u, target=v, cutoff=2)
-		
-		# get all new middle nodes between u,v to rewire
-		# if path len = 2 it is the u,v path 
-		for path in paths:
-			if len(path)>2:
-				if path[1] in newNodes:
-					nodes.add((path[1], distance(graph, u, path[1])))
-		
-		nodes = sorted(nodes,key=getKey)		
-		finalEdge = [u] + [n[0] for n in nodes] + [v]
-
-		for i in range(1,len(finalEdge)-2):
-			source = finalEdge[i]
-			target = finalEdge[i+1]
-
-			originalAttributes = graph[u][target]
-			customAttributes = originalAttributes.copy()
-			
-			if 'length' in originalAttributes:
-				uSourceLength = graph[u][source]['length']
-				uTargetLength = graph[u][target]['length']
-				length = uTargetLength - uSourceLength
-				customAttributes['length'] = length
-
-			graph.add_edge(source, target, customAttributes)
-			
-			deleteUNodes.append(target)
-			deleteVNodes.append(source)
-
-		for node in deleteUNodes:
-			graph.remove_edge(u, node)
-		for node in deleteVNodes:
-			graph.remove_edge(node, v)
-		
-		try:
 			graph.remove_edge(u,v)
-		except Exception, e:
-			raise e
+			
+			Attributes = {(u,wid) : uwAttributes, (wid,v) : wvAttributes}
+			graph.add_edge(u,wid)
+			graph.add_edge(wid,v)
+			nx.set_edge_attributes(graph,Attributes)					
 
-	return graph
-		
+	return (graph,wid,u,v)
 
-if __name__ == "__main__":
-	testGraph = nx.Graph()
-	testGraph.add_node(1,longitude=1.0, latitude=1.0)
-	testGraph.add_node(2,longitude=2.0, latitude=1.0)
-	testGraph.add_node(3,longitude=3.0, latitude=3.0)
-	testGraph.add_edge(1, 2,osmid=3,highway='residential',level=3, lanes=1, oneway=False)
-	testGraph.add_edge(2, 3,osmid=4,highway='residential',level=3, lanes=1, oneway=False)
-	newnodes = []
-	newnodes.append((1.2, 1.8))
-	newnodes.append((1.5, 1.8))
-	newnodes.append((1.6, 1.8))
-	newnodes.append((1.8, 1.8))
-	newnodes.append((1.4, 1.8))
-	newnodes.append((2.8, 2.2))
-	newnodes.append((4, 4))
-
-	print testGraph.nodes()
-
-	import matplotlib.pyplot as plt
+def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=False, rtreefile=None, csvfile = None, bus=False, epsgCode=4326, level=2, highway='path', threshold=0.0):
 	
-	G = linkNewNodes(testGraph, newnodes)
-	print testGraph.nodes(data=True)
+	modifiedEdges, newNodes = set(), set()
 
-	print 'there are',len(testGraph.nodes()),'nodes'
-	print testGraph[3]
-	eoriginal=[(u,v) for (u,v,d) in G.edges(data=True) if d['level'] == 3]
-	enew=[(u,v) for (u,v,d) in G.edges(data=True) if d['level'] == 2]
+	z = Point( graph.nodes[node]['longitude'], graph.nodes[node]['latitude'])
 
-	pos={}
-	for n in G.nodes():
-		pos[n] = (G.node[n]['longitude'],G.node[n]['latitude'])
+	# get the closest edge from the new node to wire it to it 
+	hits = list(rtreefile.nearest((z.x, z.y, z.x,z.y), 15, objects="raw"))
+	
+	if details :
+		print "LIST OF 15 NEAREST EDGES", hits
 
-	# nodes
-	nx.draw_networkx_nodes(G,pos,node_size=3)
+	nearestCouple = {}
+	for k in range (len(hits)):
+		#print "Candidat : ", hits[k]
+		#print "Point : ", z
+		line = json.loads(hits[k])
+		nearestCouple[z.distance(LineString(line['geometry']['coordinates']))]=(line['properties'].values())
+	#print nearestCouple
+	if (0 in nearestCouple) and (len(nearestCouple) > 1) :
+		nearestCouple.pop(0)
+	mindistance = min(nearestCouple.keys())
 
-	# edges
-	nx.draw_networkx_edges(G,pos,edgelist=eoriginal,width=2)
-	nx.draw_networkx_edges(G,pos,edgelist=enew,width=2,alpha=0.5,edge_color='r')
+	if details :
+		print "CHOOSEN EDGE",mindistance, nearestCouple[mindistance]
+	
+	u,v = nearestCouple[mindistance][0], nearestCouple[mindistance][1]
 
-	plt.show()
+	while (not graph.has_edge(u,v)) and (not graph.has_edge(v,u)) :
+		print "PROBLEM LINK RTREE WITH ", u, "AND", v, graph.has_edge(u,v),  graph.has_edge(v,u)
+		if csvfile != None :
+			txt = str(u) + ";" + str(v)
+			csvfile.write(txt)
+		nearestCouple.pop(mindistance)
+		if len(nearestCouple) > 0 :
+			mindistance = min(nearestCouple.keys())
+			u,v = nearestCouple[mindistance][0], nearestCouple[mindistance][1]
+		else :
+			"... NO MATCHES"
+			return 0
+	#print u,graph.nodes[u],v,graph.nodes[u]
+	# we got the nearest edge source and target
+	# if the projection of the new node z is inside the segment ([–o——] and not o [–———])
+	# 		we create a new node w on the edge and redistribute length
+	ucoo = (graph.nodes[u]['longitude'], graph.nodes[u]['latitude'])
+	vcoo = (graph.nodes[v]['longitude'], graph.nodes[v]['latitude'])
+	line = LineString([ucoo,vcoo])
+	lineLength = line.length
+	segmentLength = line.project(z)
+
+	if details :
+		print "INFORMATIONS",segmentLength, lineLength, diriged, graph.has_edge(u,v), graph.has_edge(v,u) , u, v
+
+	if segmentLength == 0:
+		wid = u
+		w = Point(ucoo[0],ucoo[1])
+	elif segmentLength == lineLength:
+		wid = v
+		w = Point(vcoo[0],vcoo[1])
+	else:
+		x,y = line.interpolate(segmentLength).coords[0]
+		w = Point(x,y)
+		wid  = -int(hashlib.md5(w.wkt).hexdigest(), 16)
+		newNodes.add(wid)
+
+			
+		if diriged :
+
+			if graph.has_edge(u,v) :
+
+				graph.add_node(wid,longitude=x, latitude=y, utilisation='Linked(WithRtree)', rTreeD = True)
+				attributes = graph.get_edge_data(u,v)
+
+				if type(graph) == nx.classes.multidigraph.MultiDiGraph : 
+					for key,value in attributes.items() :
+
+						uwAttributes = value.copy()
+						wvAttributes = value.copy()
+
+						if 'length' in value:
+							uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+							wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+						
+						uwAttributes['policosm'] = True
+						wvAttributes['policosm'] = True
+
+						graph.remove_edge(u,v,key)
+						
+						ka = graph.add_edge(u,wid)
+						kb = graph.add_edge(wid,v)
+						Attributes = {(u,wid,ka) : uwAttributes, (wid,v,kb) : wvAttributes}
+
+						nx.set_edge_attributes(graph,Attributes)
+
+						try :
+							rtreefile.delete( dict_of_edge_id[str(u) + '-' + str(v) + '-' + str(key)], (min(ucoo[0],vcoo[0]),min(ucoo[1],vcoo[1]),max(ucoo[0],vcoo[0]),max(ucoo[1],vcoo[1])) )
+							dict_of_edge_id.pop(str(u) + '-' + str(v) + '-' + str(key))
+						except Exception, e:
+							print e, "ERROR"
+
+						x1 = graph.node[u]['longitude']
+						x2 = graph.node[wid]['longitude']
+						y1 = graph.node[u]['latitude']
+						y2 = graph.node[wid]['latitude']
+
+						minx = min([x1,x2])
+						maxx = max([x1,x2])
+						miny = min([y1,y2])
+						maxy = max([y1,y2])
+						linestring = geojson.LineString([(x1, y1), (x2, y2)])
+						feature = geojson.Feature(geometry=linestring, properties={"node1": u ,"node2": wid}) 
+						rtreefile.insert( int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16), (minx,miny,maxx,maxy) , geojson.dumps(feature, sort_keys=True))
+						dict_of_edge_id[str(u) + '-' + str(wid) + '-' + str(ka)] = int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
+
+						x1 = graph.node[wid]['longitude']
+						x2 = graph.node[v]['longitude']
+						y1 = graph.node[wid]['latitude']
+						y2 = graph.node[v]['latitude']
+
+						minx = min([x1,x2])
+						maxx = max([x1,x2])
+						miny = min([y1,y2])
+						maxy = max([y1,y2])
+						linestring = geojson.LineString([(x1, y1), (x2, y2)])
+						feature = geojson.Feature(geometry=linestring, properties={"node1": wid ,"node2": v}) 
+						rtreefile.insert( int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16), (minx,miny,maxx,maxy), geojson.dumps(feature, sort_keys=True) )
+						dict_of_edge_id[str(wid) + '-' + str(v) + '-' + str(kb)] = int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)			
+
+					if details :
+						print "CASE 1", graph.has_edge(u,v), graph.has_edge(u,wid), graph.has_edge(wid,v)
+
+				else :
+					attributes = graph[u][v]
+
+					uwAttributes = attributes.copy()
+					wvAttributes = attributes.copy()
+
+					if 'length' in attributes:
+						uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+						wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+					
+					uwAttributes['policosm'] = True
+					wvAttributes['policosm'] = True
+
+					graph.remove_edge(u,v)
+					
+					Attributes = {(u,wid) : uwAttributes, (wid,v) : wvAttributes}
+					graph.add_edge(u,wid)
+					graph.add_edge(wid,v)
+					nx.set_edge_attributes(graph,Attributes)					
+					
+					rtreefile.delete( dict_of_edge_id[str(u) + '-' + str(v)], (min(ucoo[0],vcoo[0]),min(ucoo[1],vcoo[1]),max(ucoo[0],vcoo[0]),max(ucoo[1],vcoo[1])) )
+					dict_of_edge_id.pop(str(u) + '-' + str(v))
+
+					x1 = graph.node[u]['longitude']
+					x2 = graph.node[wid]['longitude']
+					y1 = graph.node[u]['latitude']
+					y2 = graph.node[wid]['latitude']
+
+					minx = min([x1,x2])
+					maxx = max([x1,x2])
+					miny = min([y1,y2])
+					maxy = max([y1,y2])
+					linestring = geojson.LineString([(x1, y1), (x2, y2)])
+					feature = geojson.Feature(geometry=linestring, properties={"node1": u ,"node2": wid}) 
+					rtreefile.insert( int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16), (minx,miny,maxx,maxy), geojson.dumps(feature, sort_keys=True) )
+					dict_of_edge_id[str(u) + '-' + str(wid)] = int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
+
+					x1 = graph.node[v]['longitude']
+					x2 = graph.node[wid]['longitude']
+					y1 = graph.node[v]['latitude']
+					y2 = graph.node[wid]['latitude']
+
+					minx = min([x1,x2])
+					maxx = max([x1,x2])
+					miny = min([y1,y2])
+					maxy = max([y1,y2])
+					linestring = geojson.LineString([(x1, y1), (x2, y2)])
+					feature = geojson.Feature(geometry=linestring, properties={"node1": wid ,"node2": v}) 
+					rtreefile.insert( int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16), (minx,miny,maxx,maxy), geojson.dumps(feature, sort_keys=True) )	
+					dict_of_edge_id[str(wid) + '-' + str(v)] = int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
+
+					if details :
+						print "CASE 2", graph.has_edge(u,v), graph.has_edge(u,wid), graph.has_edge(wid,v)
+
+			if graph.has_edge(v,u) :
+
+				graph.add_node(wid,longitude=x, latitude=y, utilisation='Linked(WithRtree)', rTreeD = True)
+				attributes = graph.get_edge_data(v,u)
+
+				if type(graph) == nx.classes.multidigraph.MultiDiGraph : 
+					for key,value in attributes.items() :
+
+						uwAttributes = value.copy()
+						wvAttributes = value.copy()
+
+						if 'length' in value:
+							uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+							wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+						
+						uwAttributes['policosm'] = True
+						wvAttributes['policosm'] = True
+
+						graph.remove_edge(v,u,key)
+
+						ka = graph.add_edge(v,wid)
+						kb = graph.add_edge(wid,u)
+						Attributes = {(v,wid,ka) : uwAttributes, (wid,u,kb) : wvAttributes}
+
+						nx.set_edge_attributes(graph,Attributes)
+
+						try : 
+							rtreefile.delete( dict_of_edge_id[str(v) + '-' + str(u) + '-' + str(key)], (min(ucoo[0],vcoo[0]),min(ucoo[1],vcoo[1]),max(ucoo[0],vcoo[0]),max(ucoo[1],vcoo[1])) )
+							dict_of_edge_id.pop(str(v) + '-' + str(u) + '-' + str(key))
+						except Exception, e:
+							print e, "ERROR"
+
+						x1 = graph.node[u]['longitude']
+						x2 = graph.node[wid]['longitude']
+						y1 = graph.node[u]['latitude']
+						y2 = graph.node[wid]['latitude']
+
+						minx = min([x1,x2])
+						maxx = max([x1,x2])
+						miny = min([y1,y2])
+						maxy = max([y1,y2])
+						linestring = geojson.LineString([(x1, y1), (x2, y2)])
+						feature = geojson.Feature(geometry=linestring, properties={"node1": u ,"node2": wid}) 
+						rtreefile.insert( int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16), (minx,miny,maxx,maxy), geojson.dumps(feature, sort_keys=True) )
+						dict_of_edge_id[str(v) + '-' + str(wid) + '-' + str(ka)] = int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
+
+						x1 = graph.node[v]['longitude']
+						x2 = graph.node[wid]['longitude']
+						y1 = graph.node[v]['latitude']
+						y2 = graph.node[wid]['latitude']
+
+						minx = min([x1,x2])
+						maxx = max([x1,x2])
+						miny = min([y1,y2])
+						maxy = max([y1,y2])
+						linestring = geojson.LineString([(x1, y1), (x2, y2)])
+						feature = geojson.Feature(geometry=linestring, properties={"node1": wid ,"node2": v}) 
+						rtreefile.insert( int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16), (minx,miny,maxx,maxy), geojson.dumps(feature, sort_keys=True) )
+						dict_of_edge_id[str(wid) + '-' + str(u) + '-' + str(kb)] = int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
+
+					if details :
+						print "CASE 3", graph.has_edge(v,u), graph.has_edge(v,wid), graph.has_edge(wid,u)
+
+				else :
+					attributes = graph[v][u]
+
+					uwAttributes = attributes.copy()
+					wvAttributes = attributes.copy()
+
+					if 'length' in attributes:
+						uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+						wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+					
+					uwAttributes['policosm'] = True
+					wvAttributes['policosm'] = True
+
+					graph.remove_edge(v,u)
+					
+					Attributes = {(v,wid) : uwAttributes, (wid,u) : wvAttributes}
+					graph.add_edge(v,wid)
+					graph.add_edge(wid,u)
+					nx.set_edge_attributes(graph,Attributes)
+
+					rtreefile.delete( dict_of_edge_id[str(v) + '-' + str(u)], (min(ucoo[0],vcoo[0]),min(ucoo[1],vcoo[1]),max(ucoo[0],vcoo[0]),max(ucoo[1],vcoo[1])) )
+					dict_of_edge_id.pop(str(v) + '-' + str(u))
+					
+					x1 = graph.node[u]['longitude']
+					x2 = graph.node[wid]['longitude']
+					y1 = graph.node[u]['latitude']
+					y2 = graph.node[wid]['latitude']
+
+					minx = min([x1,x2])
+					maxx = max([x1,x2])
+					miny = min([y1,y2])
+					maxy = max([y1,y2])
+					linestring = geojson.LineString([(x1, y1), (x2, y2)])
+					feature = geojson.Feature(geometry=linestring, properties={"node1": u ,"node2": wid}) 
+					rtreefile.insert( int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16), (minx,miny,maxx,maxy), geojson.dumps(feature, sort_keys=True) )
+					dict_of_edge_id[str(v) + '-' + str(wid)] = int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
+
+					x1 = graph.node[v]['longitude']
+					x2 = graph.node[wid]['longitude']
+					y1 = graph.node[v]['latitude']
+					y2 = graph.node[wid]['latitude']
+
+					minx = min([x1,x2])
+					maxx = max([x1,x2])
+					miny = min([y1,y2])
+					maxy = max([y1,y2])
+					linestring = geojson.LineString([(x1, y1), (x2, y2)])
+					feature = geojson.Feature(geometry=linestring, properties={"node1": wid ,"node2": v}) 
+					rtreefile.insert( int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16), (minx,miny,maxx,maxy), geojson.dumps(feature, sort_keys=True) )
+					dict_of_edge_id[str(wid) + '-' + str(u)] = int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
+
+					if details :
+						print "CASE 4", graph.has_edge(v,u), graph.has_edge(v,wid), graph.has_edge(wid,u)
+
+	return (graph,wid,u,v,dict_of_edge_id,rtreefile)
+
 
 
 
