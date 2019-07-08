@@ -71,5 +71,8 @@ def getCentroidFromBuildingsPolygons(polygons):
 if __name__ == "__main__":
 	polygons = geojson.loads('{ "type": "FeatureCollection","features": [{ "type": "Feature","geometry": {"type": "Polygon", "coordinates": [[ [0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0] ] ] }, "properties": {"prop0": "value0", "prop1": {"this": "that"} } } ] }')
 	assert getCentroidsFromBuildingsPolygons(polygons) == [(5.0, 5.0)] 
-	print getCentroidsFromBuildingsPolygons(polygons)
-	print getCentroidFromBuildingsPolygons(polygons)
+	print(getCentroidsFromBuildingsPolygons(polygons))
+	print(getCentroidFromBuildingsPolygons(polygons))
+
+
+

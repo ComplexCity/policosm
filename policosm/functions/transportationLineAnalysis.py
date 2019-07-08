@@ -31,9 +31,8 @@ import matplotlib.pyplot as plt
 
 from shapely.geometry import Polygon, LineString, Point, shape
 
-sys.path.insert(0, '/home/alex/Bureau/policosm')
-from utils.roads import levels
-from geoNetworks.linkNewNodes import linkNode_OSM, linkNode_OSM_Rtree
+from policosm.utils.roads import levels
+from policosm.geoNetworks.linkNewNodes import linkNode_OSM, linkNode_OSM_Rtree
 from policosm.geoNetworks.addMetricDistanceToEdges import addMetricDistanceToEdge
 
 # Default values
@@ -53,8 +52,8 @@ def time_travelling (x1,x2,y1,y2,type_mobility):
 	x1,x2,y1,y2 = (x1*math.pi)/180, (x2*math.pi)/180, (y1*math.pi)/180, (y2*math.pi)/180
 	try :
 		distance = 6371.01* math.acos(math.cos(y1)*math.cos(y2)*math.cos(x2-x1) + math.sin(y1)*math.sin(y2))
-	except Exception, e :
-		print e, "Use default pythagorian theorem"
+	except Exception as e :
+		print (e, "Use default pythagorian theorem")
 		x = (x1 - x2)
 		y = (y1 - y2)
 		distance = 78.85 * math.sqrt(x*x + y*y)
@@ -69,7 +68,7 @@ def time_travelling (x1,x2,y1,y2,type_mobility):
 		speed = average_ped_speed
 	else :
 		speed = average_ped_speed
-		print 'Default pedestrian speed taken'
+		print ('Default pedestrian speed taken')
 	time = float(distance) / float(speed)
 	return time
 
@@ -86,7 +85,7 @@ def retropropogation(graph,diGraph,to_visit,visited,info_name,mobility,forward =
 			else :
 				time = time_travelling(graph.nodes[node]['longitude'],graph.nodes[neighbor]['longitude'],graph.nodes[node]['latitude'],graph.nodes[neighbor]['latitude'],mobility)
 				if details :
-					print node, neighbor, diGraph.has_edge(node,neighbor), diGraph.has_edge(neighbor,node)
+					print (node, neighbor, diGraph.has_edge(node,neighbor), diGraph.has_edge(neighbor,node))
 				if forward :
 					if not diGraph.has_edge(node,neighbor) :
 						diGraph.add_edge( node,neighbor, ligne = info_name, type_mobility=mobility, time_travel=time)
@@ -168,7 +167,7 @@ def elements_du_graphe(fineGraph,isDiGraph,noDiGraph,keyOsmid,tags,members,nodes
 						if csvData :
 							fichierCSV.write(str(float(node_info['coords'][0])) + ";" + str(float(node_info['coords'][1])) + "\n")
 					else : 
-						print "Finalement pas de noeud ?", node_info
+						print ("Finalement pas de noeud ?", node_info)
 						nodes_residue += 1
 
 					return (fineGraph,noDiGraph,isDiGraph,count_node_itown,count_node_ntown,relation_station,relation_platforms,ways_in_relation, stations_to_actualize , nodes_residue)
@@ -201,16 +200,16 @@ def elements_du_graphe(fineGraph,isDiGraph,noDiGraph,keyOsmid,tags,members,nodes
 							ways_in_relation[str(osmid)+str(lowest)] = (way_nodes,way_tag,info_name)
 
 				else :
-					print "NO WAY FOUND FOR", osmid
+					print ("NO WAY FOUND FOR", osmid)
 
 				return (fineGraph,noDiGraph,isDiGraph,count_node_itown,count_node_ntown,relation_station,relation_platforms,ways_in_relation, stations_to_actualize , nodes_residue)
 
 			else :
-				print "NOT TREATED TYPE", osmType
+				print ("NOT TREATED TYPE", osmType)
 				return (fineGraph,noDiGraph,isDiGraph,count_node_itown,count_node_ntown,relation_station,relation_platforms,ways_in_relation, stations_to_actualize , nodes_residue)
 				
-		except Exception, e:
-			print "ERROR BETWEEN LINE 110 and 200", e
+		except Exception as e:
+			print ("ERROR BETWEEN LINE 110 and 200", e)
 			return (fineGraph,noDiGraph,isDiGraph,count_node_itown,count_node_ntown,relation_station,relation_platforms,ways_in_relation, stations_to_actualize , nodes_residue)
 
 	# Information sur la ligne
@@ -222,7 +221,7 @@ def elements_du_graphe(fineGraph,isDiGraph,noDiGraph,keyOsmid,tags,members,nodes
 		info_name = tags['name'] if 'name' in tags else "DEFAULT LINE " + str(default_counter) + " : FOR "+ str(type_tr.upper())
 		default_counter = default_counter if 'name' in tags else default_counter+1
 
-		print "NEW LINE INITIALIZATION FOR : ", info_name, " -- TRANSPORTATION TYPE : " , type_tr
+		print ("NEW LINE INITIALIZATION FOR : ", info_name, " -- TRANSPORTATION TYPE : " , type_tr)
 
 		for elem in range (len(members)):
 			osmid, osmType,osmDetail = members[elem]['ref'], members[elem]['type'], members[elem]['role']
@@ -247,7 +246,7 @@ def elements_du_graphe(fineGraph,isDiGraph,noDiGraph,keyOsmid,tags,members,nodes
 					pos[the_node] = (lon,lat)
 					constructible.append(the_node)
 			except KeyError :
-				print the_node, " NOT IN FILE"
+				print (the_node, " NOT IN FILE")
 				pass
 
 			for nodei in range (1,len(constructible)) :
@@ -262,7 +261,7 @@ def elements_du_graphe(fineGraph,isDiGraph,noDiGraph,keyOsmid,tags,members,nodes
 			plt.show()
 			nx.write_gexf(noDiGraph,'inspection.gexf')
 		
-		print "TOTAL NODES : " + str(count_node_itown+count_node_ntown) + "\tNODES IN FILE : " + str(count_node_itown) + "\tNOEUDS OUT : " + str(count_node_ntown)
+		print ("TOTAL NODES : " + str(count_node_itown+count_node_ntown) + "\tNODES IN FILE : " + str(count_node_itown) + "\tNOEUDS OUT : " + str(count_node_ntown))
 		
 		#nx.draw_networkx_nodes(noDiGraph,pos,node_size=5)
 		#nx.draw_networkx_edges(noDiGraph,pos,edgelist=list(noDiGraph.edges),width=3)
@@ -270,7 +269,7 @@ def elements_du_graphe(fineGraph,isDiGraph,noDiGraph,keyOsmid,tags,members,nodes
 		return (fineGraph, isDiGraph, noDiGraph, ways_in_relation, relation_station, relation_platforms, info_name, default_counter, stations_to_actualize , nodes_residue)
 
 	else :
-		print "STOP AREA DETECTED : RELATION ANALYSIS"
+		print ("STOP AREA DETECTED : RELATION ANALYSIS")
 		subway_platforms, stop_node, entrances = {}, {}, {}
 		longs, latts, out_nodes = [], [], []
 
@@ -343,15 +342,15 @@ def elements_du_graphe(fineGraph,isDiGraph,noDiGraph,keyOsmid,tags,members,nodes
 				txt2 = txt.encode('ascii','ignore')
 				adde  = int(hashlib.md5(txt2).hexdigest(), 16)
 				while adde in nds :
-					print adde, "ALREADY USED, ADDING 1"
+					print (adde, "ALREADY USED, ADDING 1")
 					adde += 1
 				fineGraph.add_node(adde,longitude=moy_longs, latitude=moy_latts ,utilisation="Created Subway Entrance")			
 				time = time_travelling(nodes[stop_node.keys()[0]]['coords'][0], moy_longs, nodes[stop_node.keys()[0]]['coords'][1], moy_latts, 'pedestrian')
 				fineGraph.add_edge( stop_node.keys()[0], adde, type_mobility='Pedestrian', time_travel=time)
 				fineGraph.add_edge( adde, stop_node.keys()[0], type_mobility='Pedestrian', time_travel=time)
 
-		print len(out_nodes), "NODES OU OF EXPORT ZONE STATION NETWORK"
-		print "Subway network created with ", len(longs), " stations and " , len(entrances), " entrances "
+		print (len(out_nodes), "NODES OU OF EXPORT ZONE STATION NETWORK")
+		print ("Subway network created with ", len(longs), " stations and " , len(entrances), " entrances ")
 		return [fineGraph]
 
 	nx.draw_networkx_nodes(noDiGraph,pos,node_size=5)
@@ -393,7 +392,7 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 			q = [ info.split(u'\u2192'), info.split(u'\u21d2'), info.split('->'), info.split('=>'), info.split('>')]
 			#print p,q
 			if ( max(p) ==1) :
-				print "Nous ne pouvons déterminer lexicalement les terminus pour ",  info
+				print ("Nous ne pouvons déterminer lexicalement les terminus pour ",  info)
 				return (fineG,noDiG,isDiG,0,depart,arrive)
 			else :
 				# WE CANNOT TREAT LINES LIKE 'A->B->C'
@@ -409,7 +408,7 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 					id_arr_iso = key if (('name' in value) and (value['name'] != None) and (value['name'] in arrive) and (id_arr_iso == None)) else None
 					id_arr = key if (('name' in value) and (value['name'] != None) and (value['name'] in depart) and (id_arr == None) and (nx.degree(noDiG, int(key)) != 0)) else None
 
-		print depart, id_dep, id_dep_iso, arrive, id_arr, id_arr_iso
+		print (depart, id_dep, id_dep_iso, arrive, id_arr, id_arr_iso)
 
 		# CASE 1 : Final departure and arrival found
 		if (id_dep != None) and (id_arr != None) :
@@ -483,12 +482,12 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 			while len(to_visitb) != 0 :
 				isDiG, to_visitb, visitedb = retropropogation(noDiG,isDiG,to_visita,visiteda,info,type_mobility,forward = False)
 				compteurb += 1
-			print "PATHS CASE 1 : ", compteura, "LOOPS DONE FORWARD AND", compteurb, "LOOPS DONE BACKWARDS"
+			print ("PATHS CASE 1 : ", compteura, "LOOPS DONE FORWARD AND", compteurb, "LOOPS DONE BACKWARDS")
 
 			fichier.write("Analyse lexicale pour : ")
 			fichier.write(info.encode('utf-8'))
 			fichier.write("\n Départ et Arrivée trouvées - Rétropropagation Avant et Arrière \n \n")
-			print "Analyse lexicale réussie"
+			print ("Analyse lexicale réussie")
 			return (fineG,noDiG,isDiG,1,depart,arrive)
 
 		else :
@@ -497,7 +496,7 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 			for k in range (len(n)):
 				if nx.degree(noDiG,n[k]) == 1:
 					first_nodes.append( int(n[k]) )
-			print "NOMBRE FIRST NODES = " + str(len(first_nodes)), "\t", first_nodes
+			print ("NOMBRE FIRST NODES = " + str(len(first_nodes)), "\t", first_nodes)
 			if (id_dep != None):
 
 				to_visit, visited = [id_dep], [id_dep]
@@ -505,12 +504,12 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 				while len(to_visit) != 0 :
 					isDiG, to_visit, visited = retropropogation(noDiG,isDiG,to_visit,visited,info,type_mobility,forward = True)
 					compteur += 1
-				print "PATHS CASE 2 : ", compteur, "LOOPS DONE FORWARD"
+				print ("PATHS CASE 2 : ", compteur, "LOOPS DONE FORWARD")
 
 				fichier.write("Analyse lexicale pour : ")
 				fichier.write(info.encode('utf-8'))
 				fichier.write("\n Départ présent seulement \n \n")
-				print "Analyse potentiellement partielle"
+				print ("Analyse potentiellement partielle")
 				return (fineG,noDiG,isDiG,2,depart,arrive)
 
 			elif (id_arr != None):
@@ -520,12 +519,12 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 				while len(to_visit) != 0 :
 					isDiG, to_visit, visited = retropropogation(noDiG,isDiG,to_visit,visited,info,type_mobility,forward = False)
 					compteur += 1
-				print "PATHS CASE 3 : ", compteur, "LOOPS DONE FORWARD"
+				print ("PATHS CASE 3 : ", compteur, "LOOPS DONE FORWARD")
 
 				fichier.write("Analyse lexicale pour : ")
 				fichier.write(info.encode('utf-8'))
 				fichier.write("\n Terminus présent seulement \n \n")
-				print "Analyse potentiellement partielle"
+				print ("Analyse potentiellement partielle")
 				return (fineG,noDiG,isDiG,3,depart,arrive)
 
 			else :
@@ -535,7 +534,7 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 						fichier.write("Analyse lexicale pour : ")
 						fichier.write(info.encode('utf-8'))
 						fichier.write("\n Départ présent mais aucun lien dans la relation \n \n")
-						print "Problème d'analyse lexicale : relation sans liens"
+						print ("Problème d'analyse lexicale : relation sans liens")
 						return (fineG,noDiG,isDiG,0,depart,arrive)
 					else :
 						node_info = stations[id_dep_iso]
@@ -566,12 +565,12 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 						while len(to_visit) != 0 :
 							isDiG, to_visit, visited = retropropogation(noDiG,isDiG,to_visit,visited,info,type_mobility,forward = True)
 							compteur += 1
-						print compteur, "LOOPS DONE"
+						print (compteur, "LOOPS DONE")
 
 						fichier.write("Analyse lexicale pour : ")
 						fichier.write(info.encode('utf-8'))
 						fichier.write("\n Départ présent mais isolé, méthode de rétropropagation \n \n")
-						print "Analyse potentiellement partielle"
+						print ("Analyse potentiellement partielle")
 						return (fineG,noDiG,isDiG,4,depart,arrive)
 
 				elif (id_arr_iso != None):
@@ -580,7 +579,7 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 						fichier.write("Analyse lexicale pour : ")
 						fichier.write(info.encode('utf-8'))
 						fichier.write("\n Arrivée présente mais aucun lien dans la relation \n \n")
-						print "Problème d'analyse lexicale : relation sans liens"
+						print ("Problème d'analyse lexicale : relation sans liens")
 						return (fineG,noDiG,isDiG,0,depart,arrive)
 					else :
 						node_info = stations[id_arr_iso]
@@ -611,24 +610,24 @@ def analyse_lexicale (fineG,noDiG,isDiG,info,stations,fichier, tags, type_mobili
 						while len(to_visit) != 0 :
 							isDiG, to_visit, visited = retropropogation(noDiG,isDiG,to_visit,visited,info,type_mobility,forward = False)
 							compteur += 1
-						print compteur, "LOOPS DONE"
+						print (compteur, "LOOPS DONE")
 
 						fichier.write("Analyse lexicale pour : ")
 						fichier.write(info.encode('utf-8'))
 						fichier.write("\n Arrivée présente mais isolée , méthode de rétropropagation \n \n")
-						print "Analyse potentiellement partielle"
+						print ("Analyse potentiellement partielle")
 						return (fineG,noDiG,isDiG,4,depart,arrive)
 				else :
 					fichier.write("Analyse lexicale pour : ")
 					fichier.write(info.encode('utf-8'))
 					fichier.write("\n Aucun départ et arrivée détectée \n \n")
-					print "Problème d'analyse lexicale"
+					print ("Problème d'analyse lexicale")
 					return (fineG,noDiG,isDiG,0,depart,arrive)
 	else:
 		fichier.write("Analyse lexicale pour : ")
 		fichier.write(info.encode('utf-8'))
 		fichier.write("\n Le nom ne permet pas l'analyse \n \n")
-		print "Problème d'analyse lexicale"
+		print ("Problème d'analyse lexicale")
 		return (fineG,noDiG,isDiG,0,None,None)		
 
 def analyse_lexicogeographique(fineG,noDiG,isDiG,info,stations,fichier,ways_in_relation, departure, arrival, type_mobility = 'Unknown'):
@@ -640,7 +639,7 @@ def analyse_lexicogeographique(fineG,noDiG,isDiG,info,stations,fichier,ways_in_r
 	for k in range (len(n)):
 		if nx.degree(noDiG,n[k]) == 1:
 			first_nodes.append( int(n[k]) )
-	print "NOMBRE FIRST NODES = " + str(len(first_nodes)), "\t", first_nodes, [ nx.degree(noDiG,first_nodes[k]) for k in range (len(first_nodes)) ]
+	print ("NOMBRE FIRST NODES = " + str(len(first_nodes)), "\t", first_nodes, [ nx.degree(noDiG,first_nodes[k]) for k in range (len(first_nodes)) ])
 	
 	d,a = None, None
 
@@ -652,7 +651,7 @@ def analyse_lexicogeographique(fineG,noDiG,isDiG,info,stations,fichier,ways_in_r
 				a = key if (arrival in value['name']) or (value['name'] in arrival) else a
 			else :
 				continue
-		print d, a
+		print (d, a)
 
 	if d != None and a != None :
 		if len(first_nodes) == 2 :
@@ -678,7 +677,7 @@ def analyse_lexicogeographique(fineG,noDiG,isDiG,info,stations,fichier,ways_in_r
 			while len(to_visitb) != 0 :
 				isDiG, to_visitb, visitedb = retropropogation(noDiG,isDiG,to_visita,visiteda,info,type_mobility,forward = False, details = False)
 				compteurb += 1
-			print "GEOLEXICAL CASE 1 : ", compteura, "LOOPS DONE FORWARD AND", compteurb, "LOOPS DONE BACKWARDS"
+			print ("GEOLEXICAL CASE 1 : ", compteura, "LOOPS DONE FORWARD AND", compteurb, "LOOPS DONE BACKWARDS")
 
 			return (fineG,noDiG,isDiG,9)
 
@@ -706,7 +705,7 @@ def analyse_lexicogeographique(fineG,noDiG,isDiG,info,stations,fichier,ways_in_r
 			while len(to_visitb) != 0 :
 				isDiG, to_visitb, visitedb = retropropogation(noDiG,isDiG,to_visita,visiteda,info,type_mobility,forward = False, details = False)
 				compteurb += 1
-			print "GEOLEXICAL CASE 2 : ", compteura, "LOOPS DONE FORWARD AND", compteurb, "LOOPS DONE BACKWARD"
+			print ("GEOLEXICAL CASE 2 : ", compteura, "LOOPS DONE FORWARD AND", compteurb, "LOOPS DONE BACKWARD")
 
 			return (fineG,noDiG,isDiG,8)
 
@@ -733,7 +732,7 @@ def analyse_lexicogeographique(fineG,noDiG,isDiG,info,stations,fichier,ways_in_r
 			isDiG, to_visita, visiteda = retropropogation(noDiG,isDiG,to_visita,visiteda,info,type_mobility,forward = forward, details = False)
 			compteura += 1
 
-		print "GEOLEXICAL CASE 3 : ", compteura, "LOOPS DONE", text, "FROM", selected_d
+		print ("GEOLEXICAL CASE 3 : ", compteura, "LOOPS DONE", text, "FROM", selected_d)
 
 		return (fineG,noDiG,isDiG,7)		
 
@@ -765,9 +764,9 @@ def analyse_lexicogeographique(fineG,noDiG,isDiG,info,stations,fichier,ways_in_r
 
 					if distances[proche_Station] != distances[eloign_Station] :
 						if name_in_station :
-							print "Création de ligne entre", stations[distances[proche_Station]], " et ", stations[distances[eloign_Station]]
+							print ("Création de ligne entre", stations[distances[proche_Station]], " et ", stations[distances[eloign_Station]])
 						else :
-							print "Création de ligne entre", distances[proche_Station] , " et ", distances[eloign_Station]
+							print ("Création de ligne entre", distances[proche_Station] , " et ", distances[eloign_Station])
 						pivot_node = first_nodes[k]
 						ephemerGraph = nx.Graph()
 						visited_ways = []
@@ -812,14 +811,14 @@ def analyse_lexicogeographique(fineG,noDiG,isDiG,info,stations,fichier,ways_in_r
 			else : 
 				continue
 		if tentative_reussie :
-			print "Analyse Geolexicale effectuée. Attention, le graphe peut ne pas représenter les directions réelles"
+			print ("Analyse Geolexicale effectuée. Attention, le graphe peut ne pas représenter les directions réelles")
 			return (fineG,noDiG,isDiG,1)
 		else :
-			print "Tentative échouée"
+			print ("Tentative échouée")
 			return (fineG,noDiG,isDiG,0)		
 
 	else :
-		print "Aucun noeud de degré 1 : le graphe a soit aucun lien soit est un cycle"
+		print ("Aucun noeud de degré 1 : le graphe a soit aucun lien soit est un cycle")
 		return (fineG,noDiG,isDiG,0)
 
 def redirection_par_defaut (fineG,noDiG,isDiG,info,stations,fichier,ways_in_relation, type_mobility = 'Unknown'):
@@ -830,7 +829,7 @@ def redirection_par_defaut (fineG,noDiG,isDiG,info,stations,fichier,ways_in_rela
 	for k in range (len(n)):
 		if nx.degree(noDiG,n[k]) == 1:
 			first_nodes.append( int(n[k]) )
-	print "NOMBRE FIRST NODES = " + str(len(first_nodes)), "\t", first_nodes
+	print ("NOMBRE FIRST NODES = " + str(len(first_nodes)), "\t", first_nodes)
 
 	if len(first_nodes) > 0 :
 		for k in range (len(first_nodes)) : 
@@ -855,7 +854,7 @@ def redirection_par_defaut (fineG,noDiG,isDiG,info,stations,fichier,ways_in_rela
 		fichier.write("Default redirection for : ")
 		fichier.write(info.encode('utf-8'))
 		fichier.write("\n \n")
-		print "Redirection par défaut effectuée"
+		print ("Redirection par défaut effectuée")
 		return (fineG,noDiG,isDiG)
 
 	elif len(noDiG.edges)==0 :
@@ -870,7 +869,7 @@ def redirection_par_defaut (fineG,noDiG,isDiG,info,stations,fichier,ways_in_rela
 		fichier.write(info.encode('utf-8'))
 		fichier.write("Drawing default edges")
 		fichier.write("\n \n")
-		print "Default redirection failed (no first nodes), drawing default edges"
+		print ("Default redirection failed (no first nodes), drawing default edges")
 		ee = list(noDiG.edges)
 		for k in range (len(ee)):
 			time = time_travelling(noDiG.nodes[ee[k][0]]['longitude'],noDiG.nodes[ee[k][1]]['longitude'],noDiG.nodes[ee[k][0]]['latitude'],noDiG.nodes[ee[k][1]]['latitude'],type_mobility)
@@ -887,7 +886,7 @@ def trace_cycle (fineG,noDiG,isDiG,info,stations,fichier, type_mobility = 'Unkno
 		fichier.write("No cycles found for : ")
 		fichier.write(info.encode('utf-8'))
 		fichier.write("\n \n")
-		print "No cycle found"
+		print ("No cycle found")
 		return (fineG,noDiG,isDiG)
 	else :
 		for k in range (nb_cycles):
@@ -907,7 +906,7 @@ def trace_cycle (fineG,noDiG,isDiG,info,stations,fichier, type_mobility = 'Unkno
 		fichier.write("Cycles drawn for ")
 		fichier.write(info.encode('utf-8'))
 		fichier.write("\n \n")
-		print nb_cycles, "cycles found for this line"
+		print (nb_cycles, "cycles found for this line")
 		return (fineG,noDiG,isDiG)		
 
 
@@ -994,7 +993,7 @@ def eulerian (graph, nodes, info_name, rTreefile, dict_of_edge_id, csvfile) :
 			R = linkNode_OSM_Rtree(graph, key, dict_of_edge_id, diriged = True, rtreefile=rTreefile, csvfile=csvfile)
 			
 			if type(R) == int :
-				print "RTREE LINK ERROR"
+				print ("RTREE LINK ERROR")
 				continue
 			graph, new_node, dict_of_edge_id, rTreefile= R[0], R[1], R[4], R[5]
 			time = time_travelling(graph.nodes[new_node]['longitude'],graph.nodes[key]['longitude'],graph.nodes[new_node]['latitude'],graph.nodes[key]['latitude'], 'pedestrian')
@@ -1042,9 +1041,9 @@ def eulerian (graph, nodes, info_name, rTreefile, dict_of_edge_id, csvfile) :
 							graph.add_edge(phe_way[-1],y_add,type_mobility = 'Undefined', level_analysis=-1, time_travel = time, ligne = info_name)
 							phe_way.append(y_add)
 
-	except Exception, e :
-		print "TREATMENT ERROR FOR : ", info_name
-		print e		
+	except Exception as e :
+		print ("TREATMENT ERROR FOR : ", info_name)
+		print (e)	
 
 
 	return graph, dict_of_edge_id, rTreefile
@@ -1101,9 +1100,9 @@ def road_support (osmid, tags, refs,nodes,r_graph,f_graph = None):
 				lanes = int(lanes[:m.start()])
 			else:
 				lanes = int(lanes)
-		except ValueError, e:
+		except ValueError as e:
 			lanes = 1
-			print 'lanes tag value error for',tags['lanes'],'for osmid',osmid,'default to 1'
+			print ('lanes tag value error for',tags['lanes'],'for osmid',osmid,'default to 1')
 	
 	#TODO add sidewalk information
 
@@ -1122,7 +1121,7 @@ def road_support (osmid, tags, refs,nodes,r_graph,f_graph = None):
 	# if the level is unknow you might want to include it in the level file (roadTypes.py)
 	# it oftens comes from miswritten osm tag
 	if level == -1:
-		print 'highway tag',highway,'unknow for osmid',osmid,'default to level 3'
+		print ('highway tag',highway,'unknow for osmid',osmid,'default to level 3')
 		level = 3
 
 	if oneway :

@@ -19,9 +19,8 @@ return
 '''
 
 import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
-from imposm.parser import OSMParser
 import networkx as nx
 from policosm.classes.transportation import Transportation
 
@@ -32,4 +31,5 @@ def transportationGraph(filename):
 	return transportation.info()
 
 if __name__ == "__main__":
-	print transportationGraph('../tests/69123.pbf')
+	print (transportationGraph('../tests/69123.pbf'))
+	

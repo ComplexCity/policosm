@@ -19,9 +19,9 @@ cities = {'France':[
 
 def getCities():
 	for country in cities:
-		print country
+		print(country)
 		for name, code in cities[country]:
-			print '\t',name, code
+			print ('\t',name, code)
 
 def getCitiesPBF(city):
 	for country in cities:

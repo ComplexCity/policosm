@@ -69,7 +69,7 @@ def publicTransportation(graph, publicTransportLevels=[0,1,2,3,4,5,6,7,8]):
 
 
 def addTimeTraveltoEdges(graph, transportation=['pedestrian, motorist']):
-	print 'motorist in transportation', 'motorist' in transportation
+	print('motorist in transportation', 'motorist' in transportation)
 	if 'pedestrian' in transportation:
 		nx.set_edge_attributes(graph, 'pedestrian', pedestrianTime(graph))
 	if 'motorist' in transportation:

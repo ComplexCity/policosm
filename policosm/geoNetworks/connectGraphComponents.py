@@ -111,9 +111,9 @@ if __name__ == "__main__":
 	# testGraph.add_edge(7, 9,osmid=4,highway='residential',level=3, lanes=1, oneway=False)
 	# testGraph.add_edge(7, 10,osmid=3,highway='residential',level=3, lanes=1, oneway=False)
 
-	print nx.is_connected(testGraph)
+	print (nx.is_connected(testGraph))
 	testGraph = connectGraphComponents(testGraph, connectNearest=True)
-	print nx.is_connected(testGraph)
+	print (nx.is_connected(testGraph))
 	
 	pos={}
 	labels = {}

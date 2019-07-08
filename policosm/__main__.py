@@ -86,4 +86,4 @@ if verbose:
 writeGraph(arguments.format, arguments.outfile)
 
 if verbose:
-	print 'finished in ' + str(time.time() - time.mktime(begin))
+	print ('finished in',str(time.time() - time.mktime(begin)))

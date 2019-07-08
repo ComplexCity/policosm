@@ -20,21 +20,21 @@ Returns :
 
 '''
 import os
-import sys
 import json
 import hashlib
 import geojson
 import networkx as nx
 import matplotlib.pyplot as plt
 
+import osmium
 from shapely.geometry import LineString, Point
 
-sys.path.insert(0, '/home/alex/Bureau/policosm')
-from geoNetworks.linkNewNodes 	import linkNode_OSM
-import functions.transportationLineAnalysis as tla 
+from policosm.geoNetworks.linkNewNodes 	import linkNode_OSM
+import policosm.functions.transportationLineAnalysis as tla 
 
-class Transportation(object):
+class Transportation(osmium.SimpleHandler):
 	def __init__(self):
+		osmium.SimpleHandler.__init__(self)
 		self.coords = {}
 		self.nodes = {}
 		self.ways = {}
@@ -57,11 +57,11 @@ class Transportation(object):
 		return self.boundary
 
 	def draw_roads(self):
-		print "ROADS DRAWING"
+		print ("ROADS DRAWING")
 		c , t , p = 1, len(self.ways), 0.25
 		for key, value in self.ways.items():
 			if (float(c)/float(t)) > p or c==t-1 :
-				print p*100, "%", " complete"
+				print (p*100, "%", " complete")
 				p+=0.25
 
 			if 'highway' in value['tags']:
@@ -111,7 +111,7 @@ class Transportation(object):
 						constructible.append(aff)
 
 						if the_node == 421488092 :
-							print "HERE", aff
+							print ("HERE", aff)
 					#print constructible
 					for nodei in range (1,len(constructible)) :
 						self.boundary.add_edge( int(constructible[nodei-1]), int(constructible[nodei]), special='Boundary')
@@ -148,13 +148,13 @@ class Transportation(object):
 		for keyOsmid, relValues in self.relations.items():
 
 			if relations_count < 0 :
-				print "RELATION NUMBER ", relations_count, "SKIPPED"
+				print ("RELATION NUMBER ", relations_count, "SKIPPED")
 				relations_count += 1
 				continue
 
 			tags, members = relValues['tags'], relValues['membs']
 
-			print "PROGRESS : ", relations_count, "/", nb_relations
+			print ("PROGRESS : ", relations_count, "/", nb_relations)
 			# STEP 1 : Determine if the relation is linked to a transportation system and draw the line
 			if (('route' in tags) and (tags['route'] in means)) or (('route_master' in tags) and (tags['route_master'] in means)) or (('type' in tags) and ('public_transport' in tags)):
 				try :
@@ -169,10 +169,10 @@ class Transportation(object):
 
 			else :
 				if 'route' in tags:
-					print "The algorithm doesn't process this route : ", tags['route']
+					print ("The algorithm doesn't process this route : ", tags['route'])
 				else :
-					print "The algorithm doesn't process this relation : ", tags
-				print '\n'
+					print ("The algorithm doesn't process this relation : ", tags)
+				print ('\n')
 				relations_count += 1
 				continue
 
@@ -183,11 +183,11 @@ class Transportation(object):
 				if len(G) == 1 : # CASE OF STOP AREA
 					self.graph = G[0]
 					relations_count += 1
-					print '\n'
+					print ('\n')
 					continue
 				else :
 					self.graph, isDiGraph, noDiGraph, ways_in_relation, relation_station, relation_platforms, info_name, default_counter, self.stations, self.nodes_residue = G[0], G[1], G[2], G[3], G[4], G[5], G[6], G[7], G[8], G[9]
-					print "STEP 1 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES "
+					print ("STEP 1 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES ")
 
 			# STEP 2 : ORIENTING THE GRAPH
 				# On essaye dans un premier temps de déterminer les terminus grâce au nom de ligne
@@ -219,7 +219,7 @@ class Transportation(object):
 			R = tla.trace_cycle(self.graph,noDiGraph,isDiGraph,info_name,relation_station,fichier, type_mobility=mean)
 			self.graph, noDiGraph, isDiGraph = R[0], R[1], R[2]
 			
-			print "STEP 2 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES "
+			print ("STEP 2 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES ")
 			
 			# ETAPE 3a : On rajoute les plateformes : simplifiés en noeud centroïde [exclusif bus pour l'instant]
 				#Rq : mise à la fin pour éviter les conflits de degré de noeuds			
@@ -267,7 +267,7 @@ class Transportation(object):
 					else :
 						continue
 
-				print "STEP 3 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES "
+				print ("STEP 3 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES ")
 
 			# STEP 4 : On raccorde les stations intermdiaires représentées que par des points
 				#Rq : mise à la fin pour éviter les conflits de degré de noeuds
@@ -312,7 +312,7 @@ class Transportation(object):
 				else :
 					continue
 
-			print "STEP 4 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES "
+			print ("STEP 4 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES ")
 
 			nx.set_node_attributes(isDiGraph,self.stations)
 			self.stations = {}
@@ -322,9 +322,9 @@ class Transportation(object):
 				self.graph = tla.replacer_A(isDiGraph, self.graph, info_name)
 			else :
 				self.graph = tla.replacer_B(isDiGraph, self.graph, info_name)
-			print "STEP 5 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES "
+			print ("STEP 5 COMPLETE , FINAL GRAPH STATE : ", len( list (self.graph.edges)), " EDGES ; ", len( list (self.graph.nodes)), " NODES ")
 
-			print '\n'
+			print ('\n')
 
 			isDiGraph.clear()
 			noDiGraph.clear()
@@ -334,4 +334,4 @@ class Transportation(object):
 		fichierCSV.close()
 
 if __name__ == "__main__":
-	print "Rien"
+	print ("Rien")

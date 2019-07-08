@@ -18,8 +18,6 @@ return
 import networkx as nx
 from osgeo import ogr, osr
 
-import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 from policosm.geoFunctions.getEPSG import *
 
 def convertNodesCoordinates(graph, sourceEPSG, targetEPSG):
@@ -40,9 +38,9 @@ if __name__ == "__main__":
 	testGraph = nx.Graph()
 	x, y = (4.9528934,45.8224652)
 	testGraph.add_node(1,longitude=x, latitude=y)
-	print testGraph.node[1]
+	print (testGraph.node[1])
 
 	epsg = epsgFromCoordinates('France', x, y)
-	print int(epsg)
+	print (int(epsg))
 	testGraph = convertNodesCoordinates(testGraph, 4326, 3946)
-	print testGraph.node[1]	
+	print (testGraph.node[1])

@@ -27,7 +27,7 @@ import sys
 import networkx as nx
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, '/home/alex/Bureau')
+sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
 import policosm.functions.transportationLineAnalysis as tla
 import policosm.geoNetworks.accessible_travelling_zone as acc

@@ -16,9 +16,7 @@ return
 
 '''
 
-import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
-
+import osmium
 import geojson
 from shapely.geometry import Polygon, LineString, asShape, mapping
 
@@ -29,18 +27,19 @@ class Within(object):
         return self.o.within(other.o)
 
 
-class Buildings(object):
+class Buildings(osmium.SimpleHandler):
 	def __init__(self):
+		osmium.SimpleHandler.__init__(self)
 		self.coordinates = {}
 		self.ways = {}
 		self.relations = {}
 		self.buildings = {}
 		
-	def nodes(self, coords):
+	def node(self, coords):
 		for osmid, lon, lat in coords:
 			self.coordinates[osmid]=(lon, lat)
 
-	def osmways(self, ways):
+	def way(self, ways):
 		for osmid, tags, refs in ways:
 			
 			building = False
@@ -59,7 +58,7 @@ class Buildings(object):
 
 			self.ways[osmid] = (refs,building,amenity,wheelchair,buildingLevels)
 
-	def osmrelations(self, relations):
+	def relation(self, relations):
 		for osmid, tags, members in relations:
 			if 'type' in tags:
 				if tags['type'] == 'multipolygon':
@@ -110,11 +109,3 @@ class Buildings(object):
 				features.append(geojson.Feature(geometry=geojson.Polygon(polygon), properties=properties))
 		featureCollection = geojson.FeatureCollection(features)
 		return featureCollection
-
-if __name__ == "__main__":
-	from imposm.parser import OSMParser
-	buildings = Buildings()
-	osmparser = OSMParser(concurrency=4, coords_callback=buildings.nodes, ways_callback=buildings.osmways, relations_callback=buildings.osmrelations)
-	osmparser.parse('/Users/fabien/workspace/cities-pictures/data/France/1-pbf/lille.osm.pbf')
-	# print geojson.dumps(buildings.getPolygons())
-	print '[info] there is',len(buildings.getPolygons()['features'])

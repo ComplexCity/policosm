@@ -24,24 +24,25 @@ Algorithm based on osmid will perform with unpredictable results
 '''
 
 import sys
+sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
+
 import json
 import hashlib
 import networkx as nx
 
 from shapely.geometry import LineString, Point
 
-sys.path.insert(0, '/home/alex/Bureau/policosm')
-from functions.getRtree import *
-from geoNetworks.addMetricDistanceToEdges import addMetricDistanceToEdge
+from policosm.functions.getRtree import *
+from policosm.geoNetworks.addMetricDistanceToEdges import addMetricDistanceToEdge
 
 def nearestEdgeFromPoint(candidates, point):
 	nearestCouple = {}
 	for candidate in candidates:
-		print "Candidat : ", candidate
-		print "Point : ", point
+		print ("Candidat : ", candidate)
+		print ("Point : ", point)
 		line = json.loads(candidate)
 		nearestCouple[point.distance(LineString(line['geometry']['coordinates']))]=(line['properties'].values())
-	print nearestCouple
+	print(nearestCouple)
 	mindistance = min(nearestCouple.keys())
 	return nearestCouple[mindistance]
 
@@ -228,7 +229,7 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 	hits = list(rtreefile.nearest((z.x, z.y, z.x,z.y), 15, objects="raw"))
 	
 	if details :
-		print "LIST OF 15 NEAREST EDGES", hits
+		print ("LIST OF 15 NEAREST EDGES", hits)
 
 	nearestCouple = {}
 	for k in range (len(hits)):
@@ -242,12 +243,12 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 	mindistance = min(nearestCouple.keys())
 
 	if details :
-		print "CHOOSEN EDGE",mindistance, nearestCouple[mindistance]
+		print("CHOOSEN EDGE",mindistance, nearestCouple[mindistance])
 	
 	u,v = nearestCouple[mindistance][0], nearestCouple[mindistance][1]
 
 	while (not graph.has_edge(u,v)) and (not graph.has_edge(v,u)) :
-		print "PROBLEM LINK RTREE WITH ", u, "AND", v, graph.has_edge(u,v),  graph.has_edge(v,u)
+		print("PROBLEM LINK RTREE WITH ", u, "AND", v, graph.has_edge(u,v),  graph.has_edge(v,u))
 		if csvfile != None :
 			txt = str(u) + ";" + str(v)
 			csvfile.write(txt)
@@ -269,7 +270,7 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 	segmentLength = line.project(z)
 
 	if details :
-		print "INFORMATIONS",segmentLength, lineLength, diriged, graph.has_edge(u,v), graph.has_edge(v,u) , u, v
+		print("INFORMATIONS",segmentLength, lineLength, diriged, graph.has_edge(u,v), graph.has_edge(v,u) , u, v)
 
 	if segmentLength == 0:
 		wid = u
@@ -315,8 +316,8 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 						try :
 							rtreefile.delete( dict_of_edge_id[str(u) + '-' + str(v) + '-' + str(key)], (min(ucoo[0],vcoo[0]),min(ucoo[1],vcoo[1]),max(ucoo[0],vcoo[0]),max(ucoo[1],vcoo[1])) )
 							dict_of_edge_id.pop(str(u) + '-' + str(v) + '-' + str(key))
-						except Exception, e:
-							print e, "ERROR"
+						except Exception as e:
+							print (e, "ERROR")
 
 						x1 = graph.node[u]['longitude']
 						x2 = graph.node[wid]['longitude']
@@ -347,7 +348,7 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 						dict_of_edge_id[str(wid) + '-' + str(v) + '-' + str(kb)] = int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)			
 
 					if details :
-						print "CASE 1", graph.has_edge(u,v), graph.has_edge(u,wid), graph.has_edge(wid,v)
+						print ("CASE 1", graph.has_edge(u,v), graph.has_edge(u,wid), graph.has_edge(wid,v))
 
 				else :
 					attributes = graph[u][v]
@@ -401,7 +402,7 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 					dict_of_edge_id[str(wid) + '-' + str(v)] = int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
 
 					if details :
-						print "CASE 2", graph.has_edge(u,v), graph.has_edge(u,wid), graph.has_edge(wid,v)
+						print ("CASE 2", graph.has_edge(u,v), graph.has_edge(u,wid), graph.has_edge(wid,v))
 
 			if graph.has_edge(v,u) :
 
@@ -432,8 +433,8 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 						try : 
 							rtreefile.delete( dict_of_edge_id[str(v) + '-' + str(u) + '-' + str(key)], (min(ucoo[0],vcoo[0]),min(ucoo[1],vcoo[1]),max(ucoo[0],vcoo[0]),max(ucoo[1],vcoo[1])) )
 							dict_of_edge_id.pop(str(v) + '-' + str(u) + '-' + str(key))
-						except Exception, e:
-							print e, "ERROR"
+						except Exception as e:
+							print (e, "ERROR")
 
 						x1 = graph.node[u]['longitude']
 						x2 = graph.node[wid]['longitude']
@@ -464,7 +465,7 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 						dict_of_edge_id[str(wid) + '-' + str(u) + '-' + str(kb)] = int(hashlib.md5( str(value) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
 
 					if details :
-						print "CASE 3", graph.has_edge(v,u), graph.has_edge(v,wid), graph.has_edge(wid,u)
+						print ("CASE 3", graph.has_edge(v,u), graph.has_edge(v,wid), graph.has_edge(wid,u))
 
 				else :
 					attributes = graph[v][u]
@@ -518,7 +519,7 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 					dict_of_edge_id[str(wid) + '-' + str(u)] = int(hashlib.md5( str(attributes) + str(x1) + str(x2) + str(y1) + str(y2) ).hexdigest(), 16)
 
 					if details :
-						print "CASE 4", graph.has_edge(v,u), graph.has_edge(v,wid), graph.has_edge(wid,u)
+						print ("CASE 4", graph.has_edge(v,u), graph.has_edge(v,wid), graph.has_edge(wid,u))
 
 	return (graph,wid,u,v,dict_of_edge_id,rtreefile)
 

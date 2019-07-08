@@ -19,16 +19,14 @@ return
 '''
 
 import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
-from imposm.parser import OSMParser
 import networkx as nx
 from policosm.classes.buildings import Buildings
 
 def buildingsPolygons(filename):
 	buildings = Buildings()
-	osmparser = OSMParser(concurrency=4, coords_callback=buildings.nodes, ways_callback=buildings.osmways, relations_callback=buildings.osmrelations)
-	osmparser.parse(filename)
+	buildings.apply_file(filename)
 	return buildings.getPolygons()
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ from rtree import index
 from rtree.index import Rtree
 
 import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
 from policosm.functions.getRtree import getGraphRtree
 from policosm.geoNetworks.linkNewNodes import nearestEdgeFromPoint, addMetricDistanceToEdge
@@ -64,7 +64,7 @@ class Distances(object):
 				raise 'unknown weight'
 	
 	def loadPairs(self, filename, weight='motorist'):
-		 with open(filename + '-' + weight + '.pkl', 'rb') as ifp:
+		with open(filename + '-' + weight + '.pkl', 'rb') as ifp:
 			if weight == 'motorist':
 				self.motorist = pickle.load(ifp)
 			elif weight == 'pedestrian':
@@ -133,7 +133,7 @@ class Distances(object):
 		if self.weight == 'motorist':
 			try:
 				value = self.motorist[n1][n2]
-			except KeyError,e:
+			except KeyError as e:
 				# if no node link the two we find the two closest on the the two networks
 				raise e
 		return value + d1 + d2

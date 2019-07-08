@@ -17,21 +17,23 @@ return
 	
 
 '''
-
 import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
-from imposm.parser import OSMParser
+#from imposm.parser import OSMParser
 import networkx as nx
 from policosm.classes.roads import Roads
 
 def roadsGraph(filename):
 	roads = Roads()
-	osmParser = OSMParser(concurrency=4, coords_callback=roads.nodes, ways_callback=roads.edges)
-	osmParser.parse(filename)
+	roads.apply_file(filename)
+	#osmParser = OSMParser(concurrency=4, coords_callback=roads.nodes, ways_callback=roads.edges)
+	#osmParser.parse(filename)
 	return roads.getGraph()
 
 if __name__ == "__main__":
+	
+
 	graph = roadsGraph('../tests/minimal-example.osm')
 	assert len(graph.nodes()) == 5
 	assert len(graph.edges()) == 4

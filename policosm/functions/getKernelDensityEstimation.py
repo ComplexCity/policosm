@@ -17,10 +17,7 @@ return
 
 import numpy as np
 from sklearn.neighbors import KernelDensity
-from sklearn.grid_search import GridSearchCV
-
-import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+from sklearn.model_selection import GridSearchCV
 
 # from policosm.classes.distances import Distances, customMetric
 

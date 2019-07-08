@@ -48,7 +48,5 @@ def epsgFromCoordinates(country, longitude, latitude):
                 finalProjection = candidateProjection[i]
         return finalProjection
     else:
-        print 'Not Found!'
-        print latitude
-        print longitude
-        return ''
+        print ('epsg not found for ',country,longitude,latitude)
+        return None
