@@ -24,7 +24,6 @@ return
 	graph minus nodes outside of bounding box
 '''
 
-import networkx as nx
 
 def boundingBox(graph, coordinates):
 	minlon = min(coordinates[0], coordinates[2])

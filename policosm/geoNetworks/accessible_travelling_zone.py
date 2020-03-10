@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
-import networkx as nx
-import matplotlib.pyplot as plt
 
-import numpy as np
-import matplotlib
-import matplotlib.patches as ptc
-from matplotlib.collections import PatchCollection
-from shapely.geometry import Point, MultiPoint, Polygon
-from shapely.ops import cascaded_union, triangulate
+import matplotlib.pyplot as plt
+import networkx as nx
+from shapely.geometry import Point
+
 
 def calcul (graph,times,to_visit,temps_max) :
     next_visits = []

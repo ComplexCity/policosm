@@ -16,8 +16,9 @@ return
 '''
 
 import numpy as np
-from sklearn.neighbors import KernelDensity
 from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KernelDensity
+
 
 # from policosm.classes.distances import Distances, customMetric
 

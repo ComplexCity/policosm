@@ -22,7 +22,7 @@ import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 
 import networkx as nx
-from shapely.geometry import Polygon, LineString
+from shapely.geometry import LineString
 
 
 def getCentroidsFromRoadsGraph(graph):

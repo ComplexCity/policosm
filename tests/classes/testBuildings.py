@@ -1,16 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''
+"""
 Created in February 2017 in ComplexCity Lab
 
 @author: github.com/fpfaende
-'''
+"""
 
 import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 
 import geojson
-from shapely.geometry import Polygon, LineString, asShape, mapping
+from shapely.geometry import Polygon, mapping
 
 class Within(object):
     def __init__(self, o):
@@ -19,7 +19,7 @@ class Within(object):
         return self.o.within(other.o)
 
 
-class Test_Buildings_class(object):
+class TestBuildings(object):
 	def test_nodes(self, coords):
 		for osmid, lon, lat in coords:
 			self.coordinates[osmid]=(lon, lat)

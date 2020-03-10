@@ -21,7 +21,6 @@ return
 import sys
 sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
-import networkx as nx
 from policosm.classes.buildings import Buildings
 
 def buildingsPolygons(filename):

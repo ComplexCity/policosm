@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''
+"""
 Created in February 2017 in ComplexCity Lab
 
 @author: github.com/fpfaende
 
 what it does
-	extract a graph from 
+	extract a graph from
 
 parameters
 	graph
@@ -14,14 +14,13 @@ parameters
 how it works
 
 return
-	
 
-'''
+
+"""
+import argparse
 # standard python libraries
 import time
 from time import localtime, strftime
-import argparse
-import json
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
@@ -45,7 +44,7 @@ if __name__ == "__main__":
 # instantiate counter and parser and start parsing
 if verbose:
 	begin = localtime()
-	print strftime("%H:%M:%S", localtime()) + ' — Parsing ' + str(arguments.osm_file)
+	print(strftime("%H:%M:%S", localtime()) + ' — Parsing ' + str(arguments.osm_file))
 roadsNetwork = Roads()
 osmParser = OSMParser(concurrency=4, coords_callback=roadsNetwork.nodes, ways_callback=roadsNetwork.edges)
 osmParser.parse(arguments.osm_file)
@@ -56,7 +55,7 @@ if verbose:
 # bounding box the graph is necessary
 if arguments.boundingBox:
 	if verbose:
-		print strftime("%H:%M:%S", localtime()) + ' — Bounding Boxing to ' + arguments.boundingBox
+		print(strftime("%H:%M:%S", localtime()) + ' — Bounding Boxing to ' + arguments.boundingBox)
 	coordinates = [float(x.strip()) for x in arguments.boundingBox.split(',')]
 	boundingBox(coordinates)
 	if verbose:
@@ -64,25 +63,25 @@ if arguments.boundingBox:
 
 if arguments.clean:
 	if verbose:
-		print strftime("%H:%M:%S", localtime()) + ' — Cleaning the graph'
+		print(strftime("%H:%M:%S", localtime()) + ' — Cleaning the graph')
 	clean()
 	if verbose:
 		graphSummary()
 
 if arguments.distance:
 	if verbose:
-		print strftime("%H:%M:%S", localtime()) + ' — Calculating distance the graph'
+		print(strftime("%H:%M:%S", localtime()) + ' — Calculating distance the graph')
 	updateEdgesWithMetricDistance(arguments.distance)
 
 if arguments.simplify:
 	if verbose:
-		print strftime("%H:%M:%S", localtime()) + ' — Simplifying path in graph'
+		print(strftime("%H:%M:%S", localtime()) + ' — Simplifying path in graph')
 	simplify()
 	if verbose:
 		graphSummary()
 
 if verbose:
-	print strftime("%H:%M:%S", localtime()) + ' — writing ' + arguments.format + ' graph in ' + arguments.outfile
+	print(strftime("%H:%M:%S", localtime()) + ' — writing ' + arguments.format + ' graph in ' + arguments.outfile)
 writeGraph(arguments.format, arguments.outfile)
 
 if verbose:

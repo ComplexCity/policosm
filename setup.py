@@ -21,7 +21,7 @@ setup(
         "plotly", 
         "imposm", 
         "sklearn",
-        "rdp"
+        "rdp", 'utm', 'osmium', 'pint', 'pandas', 'geopandas'
     ],
 
     install_requires=[

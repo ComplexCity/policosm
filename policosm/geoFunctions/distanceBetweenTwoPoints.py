@@ -15,8 +15,6 @@ return
 CAREFUL THE UNIT IS THE ONE OF THE PROJECTION SYSTEM CHOOSE A METER UNIT
 '''
 
-from osgeo import ogr, osr
-
 from policosm.geoFunctions.convertCoordinates import *
 
 def distanceBetweenTwoPoints(point1,point2, sourceEPSG = 4326, targetEPSG = None):

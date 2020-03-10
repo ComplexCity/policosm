@@ -15,19 +15,17 @@ return
 
 '''
 
-import numpy as np
-import networkx as nx
 import pickle
-from shapely.geometry import Point, LineString
-from rtree import index
-from rtree.index import Rtree
-
 import sys
+
+import networkx as nx
+from shapely.geometry import Point, LineString
+
 sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
 from policosm.functions.getRtree import getGraphRtree
 from policosm.geoNetworks.linkNewNodes import nearestEdgeFromPoint, addMetricDistanceToEdge
-from policosm.utils.roads import France
+from policosm.utils.levels import France
 
 class Distances(object):
 

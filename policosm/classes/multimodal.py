@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 '''
 In progress since June 2018 in ComplexCity Lab
@@ -22,24 +22,19 @@ Returns :
 
 '''
 
-import os
 import sys
-import networkx as nx
-import matplotlib.pyplot as plt
 
 sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
-import policosm.functions.transportationLineAnalysis as tla
 import policosm.geoNetworks.accessible_travelling_zone as acc
 import policosm.geoNetworks.draw_isochrone as drw
 
-from imposm.parser import OSMParser
-from policosm.classes.roads import Roads
 from policosm.functions.getRtree import *
 from policosm.geoNetworks.clean import clean
 from policosm.extractors.policosmsax import *
 from policosm.classes.transportation import *
-from policosm.geoNetworks.linkNewNodes import linkNode_OSM_Rtree, nearestEdgeFromPoint
+from policosm.geoNetworks.linkNewNodes import linkNode_OSM_Rtree
+
 
 def rescale_esthetic (graph) :
 

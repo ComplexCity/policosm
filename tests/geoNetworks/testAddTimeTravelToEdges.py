@@ -25,11 +25,12 @@ return
 	graph with new attribute length on edges
 '''
 
+import sys
+
 import networkx as nx
 
-import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
-from policosm.utils.roads import France
+from policosm.utils.levels import France
 
 
 def pedestrianTime(graph):

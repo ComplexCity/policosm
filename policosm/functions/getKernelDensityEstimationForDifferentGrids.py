@@ -1,7 +1,7 @@
 # coding=utf-8
 import numpy as np
-from sklearn.neighbors import KernelDensity
 from sklearn.grid_search import GridSearchCV
+from sklearn.neighbors import KernelDensity
 
 
 #  parameter grid_sizes represents all the different grids we want to compute

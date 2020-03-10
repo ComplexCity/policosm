@@ -21,9 +21,8 @@ return
 import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 
-import geojson 
-import networkx as nx
-from shapely.geometry import Polygon, LineString, shape
+import geojson
+from shapely.geometry import shape
 
 def getAreaWeightedCentroidsFromBuildingsPolygons(polygons):
 	centroids = []

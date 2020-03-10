@@ -21,9 +21,7 @@ return
 import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 
-import networkx as nx
 from rtree import index
-from rtree.index import Rtree
 import geojson
 
 def edgesGenerator(graph, interleaved=True):

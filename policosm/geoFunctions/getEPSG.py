@@ -18,8 +18,6 @@ return
 import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 
-from policosm.utils.projections import *
-
 projections = {'France' : FranceProjections, 'USA':USAProjections}
 
 def epsgFromCoordinates(country, longitude, latitude):

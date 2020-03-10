@@ -1,2 +1,9 @@
 *.pyc
-.idea
+.DS_Store
+/.cache/
+/policosm/classes/test_graph_vertices.pkl
+/policosm/classes/test_graph_edges.pkl
+/policosm/classes/test_graph
+/policosm/classes/paris-vertices.pkl
+/policosm/classes/paris-edges.pkl
+/policosm/tests/Paris.osm.pbf

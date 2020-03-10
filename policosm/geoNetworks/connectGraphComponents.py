@@ -23,17 +23,15 @@ Algorithm based on osmid will perform with unpredictable results
 
 '''
 
-from shapely.geometry import Point
-import json
-import networkx as nx
 import itertools
+import json
 
-import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+import networkx as nx
+from shapely.geometry import Point
 
 from policosm.functions.getRtree import *
-from policosm.geoNetworks.addMetricDistanceToEdges import addMetricDistanceToEdge
 from policosm.geoFunctions.nearest import nearestNode
+
 
 #TODO add length attribute test to connect graph
 

@@ -14,19 +14,20 @@ how it works
 return
 
 '''
-import numpy as np
+import sys
+
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
+import numpy as np
 
-import sys
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 
 from policosm.extractors import roadsGraph, buildingsPolygons
 from policosm.geoNetworks import clean, simplify
 from policosm.functions import getCentroidsFromRoadsGraph, getCentroidsFromBuildingsPolygons, getBoundaries, getKernelDensityEstimation
-from policosm.utils.cities import getCitiesPBF
+from policosm.utils.cities import get_cities_PBF
 
-filename = '/Volumes/Fabien/Research/cities-pictures/data/France/1-pbf/' + getCitiesPBF('Miribel')
+filename = '/Volumes/Fabien/Research/cities-pictures/data/France/1-pbf/' + get_cities_PBF('Miribel')
 graph = roadsGraph(filename)
 graph = clean(graph)
 graph = simplify(graph)

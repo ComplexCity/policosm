@@ -19,18 +19,17 @@ Returns :
 	A Transportation object which graph can be called
 
 '''
-import os
-import json
 import hashlib
+import json
+
 import geojson
 import networkx as nx
-import matplotlib.pyplot as plt
-
 import osmium
 from shapely.geometry import LineString, Point
 
-from policosm.geoNetworks.linkNewNodes 	import linkNode_OSM
-import policosm.functions.transportationLineAnalysis as tla 
+import policosm.functions.transportationLineAnalysis as tla
+from policosm.geoNetworks.linkNewNodes import linkNode_OSM
+
 
 class Transportation(osmium.SimpleHandler):
 	def __init__(self):

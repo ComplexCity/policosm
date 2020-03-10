@@ -28,9 +28,11 @@ return
 
 '''
 
-import networkx as nx
+import math
+
 import numpy as np
 from rdp import rdp
+
 
 def detectLinesWithDepthFirstSearch(G):
 	lines = []
@@ -48,8 +50,8 @@ def detectLinesWithDepthFirstSearch(G):
 		if len(G[start]) != 2:
 			continue
 
-		left = G[start].keys()[0]
-		right = G[start].keys()[1]
+		left = list(G[start].keys())[0]
+		right = list(G[start].keys())[1]
 
 		if G[start][left]['level']!= G[start][right]['level']:
 			continue
@@ -80,8 +82,8 @@ def detectLinesWithDepthFirstSearch(G):
 			line.append([start])
 
 		
-		farleft = G[line[0][-1]].keys()[0] if G[line[0][-1]].keys()[1] in visited else G[line[0][-1]].keys()[1]
-		farright = G[line[1][-1]].keys()[0] if G[line[1][-1]].keys()[1] in visited or G[line[1][-1]].keys()[1] == farleft else G[line[1][-1]].keys()[1]
+		farleft = list(G[line[0][-1]].keys())[0] if list(G[line[0][-1]].keys())[1] in visited else list(G[line[0][-1]].keys())[1]
+		farright = list(G[line[1][-1]].keys())[0] if list(G[line[1][-1]].keys())[1] in visited or list(G[line[1][-1]].keys())[1] == farleft else list(G[line[1][-1]].keys())[1]
 		if G[line[0][-1]][farleft]['level'] == level:
 			line[0].append(farleft)
 		if G[line[1][-1]][farright]['level'] == level:
@@ -93,7 +95,7 @@ def detectLinesWithDepthFirstSearch(G):
 
 
 def rdp_line(path, epsilon):
-	return rdp(np.array(path).reshape(len(path)/2, 2),epsilon=epsilon)
+	return rdp(np.array(path).reshape(math.ceil(len(path)/2), 2),epsilon=epsilon)
 
 
 def simplify_with_rdp(G, epsilon=0.00025):
@@ -128,7 +130,9 @@ def simplify_with_rdp(G, epsilon=0.00025):
 				try:
 					edge = G[source][target]
 				except KeyError:
-					G.add_edge(source,target,attributes)
+					G.add_edge(source,target)
+					G.edges[source, target].update(attributes)
+
 				source = target
 
 		for node in line:

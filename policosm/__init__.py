@@ -1,30 +1,26 @@
-'''
+"""
 policosm
 ========
-    policosm is a Python package for the extraction, manipulation, and study of the structure of 
+    policosm is a Python package for the extraction, manipulation, and study of the structure of
     city related osm extract
 Using
 -----
     Just write in Python
     >>> import policosm as pco
-'''
-#   Created in June 2016 in ComplexCity Lab
-#   @author: github.com/fpfaende
 
-import policosm.utils
-from policosm.utils import *
+    Created in June 2016 in ComplexCity Lab
+    @author: github.com/fpfaende
+"""
 
 import policosm.classes
-from policosm.classes import *
-
-import policosm.geoNetworks
-from policosm.geoNetworks import *
-
 import policosm.extractors
-from policosm.extractors import *
-
 import policosm.functions
-from policosm.functions import *
-
 import policosm.geoFunctions
+import policosm.geoNetworks
+import policosm.utils
+from policosm.classes import *
+from policosm.extractors import *
+from policosm.functions import *
 from policosm.geoFunctions import *
+from policosm.geoNetworks import *
+from policosm.utils import *

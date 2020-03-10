@@ -18,22 +18,18 @@ Functions in this file :
 
 '''
 
-import os
-import re
-import sys
+import hashlib
 import json
 import math
-import json
+import re
+
 import geojson
-import hashlib
-import networkx as nx
 import matplotlib.pyplot as plt
+import networkx as nx
+from shapely.geometry import LineString, Point
 
-from shapely.geometry import Polygon, LineString, Point, shape
-
-from policosm.utils.roads import levels
 from policosm.geoNetworks.linkNewNodes import linkNode_OSM, linkNode_OSM_Rtree
-from policosm.geoNetworks.addMetricDistanceToEdges import addMetricDistanceToEdge
+from policosm.utils.levels import levels
 
 # Default values
 	#Default waiting time

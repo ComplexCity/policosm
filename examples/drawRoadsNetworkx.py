@@ -21,10 +21,9 @@ graph minus alone or non-conform nodes
 
 '''
 import sys
-sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
+sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
 import matplotlib.pyplot as plt
-import networkx as nx
 import colorlover as cl
 
 from policosm.extractors.roadsGraph import *
@@ -54,17 +53,20 @@ def drawRoads(G, edgeColorAttribute='level', edgeColorScale=9, nodeColorAttribut
 
 if __name__ == "__main__":
 	# filename = '/Volumes/Fabien/Research/cities-pictures/data/France/1-pbf/74173.pbf'
-	filename = '/Users/fabien/Downloads/pau-agglomeration.osm'
+	filename = '/Users/fabien/Documents/workspace/SHU-communities/data/shanghai.pbf'
 	graph = roadsGraph(filename)
-	raw_count = len(graph.edges())
-	print 'raw',raw_count,'edges'
-	# graph = pocogeo.boundingBox(graph, [121.1517,30.8221, 122.0389, 31.4755])
+	print (nx.info(graph))
+	
 	graph = pocogeo.clean(graph)
-	clean_count = len(graph.edges())
-	print 'clean',clean_count,'edges',100-int(float(clean_count)/raw_count*100),'percent saved'
+	print (nx.info(graph))
+
+
 	graph = pocogeo.simplify_with_rdp(graph)
-	simplified_count = len(graph.edges())
-	print 'simplified',simplified_count,'edges',100-int(float(simplified_count)/raw_count*100),'percent saved'
-	#nx.write_gexf(graph, '/Users/fabien/Downloads/pau-agglomeration.gexf')
+	print (nx.info(graph))
+	nx.write_gexf(graph, '/Users/fabien/Documents/workspace/SHU-communities/data/shanghai.gexf')
 	# plotRoadsGraphPNG(graph,filename.split('/')[-1].split('.')[-2])
-	drawRoads(graph)
+	#drawRoads(graph)
+
+
+
+

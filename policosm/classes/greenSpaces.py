@@ -16,9 +16,10 @@ return
 
 '''
 
+import sys
+
 import networkx as nx
 
-import sys
 sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
 # TODO 

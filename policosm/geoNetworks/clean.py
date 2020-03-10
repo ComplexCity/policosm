@@ -21,22 +21,33 @@ return
 
 '''
 
-import networkx as nx
 
 def clean(graph):
+	
+	flagged_for_delation = []
+
 	#remove node without complete geographic information
 	for node in graph.nodes():
 		if 'latitude' not in graph.node[node] or 'longitude' not in graph.node[node]:
-			graph.remove_node(node)
+			flagged_for_delation.append(node)
+			
 
 	# remove self referencing edges
 	for u,v in graph.edges():
 		if u == v:
-			graph.remove_edge(u,v)
+			flagged_for_delation.append((u,v))
 
 	# remove nodes with degree 0
 	for node in graph.nodes():
 		if len(graph[node].keys()) == 0:
-			graph.remove_node(node)
+			flagged_for_delation.append(node)
+
+
+	for element in flagged_for_delation:
+		if type(element) is tuple:
+			u,v = element
+			graph.remove_edge(u,v)
+		else:
+			graph.remove_node(element)
 
 	return graph

@@ -16,9 +16,10 @@ return
 
 '''
 
-import osmium
 import geojson
-from shapely.geometry import Polygon, LineString, asShape, mapping
+import osmium
+from shapely.geometry import Polygon, mapping
+
 
 class Within(object):
     def __init__(self, o):
@@ -40,6 +41,8 @@ class Buildings(osmium.SimpleHandler):
 			self.coordinates[osmid]=(lon, lat)
 
 	def way(self, ways):
+		osmid = w.id
+		tags = w.tags
 		for osmid, tags, refs in ways:
 			
 			building = False
