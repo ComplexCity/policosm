@@ -33,7 +33,6 @@ import networkx as nx
 from shapely.geometry import LineString, Point
 
 from policosm.functions.getRtree import *
-from policosm.geoNetworks.addMetricDistanceToEdges import addMetricDistanceToEdge
 
 def nearestEdgeFromPoint(candidates, point):
 	nearestCouple = {}
@@ -121,9 +120,9 @@ def linkNode_OSM(graph, node, edge,diriged = False, bus=False, epsgCode=4326, le
 						uwAttributes = value.copy()
 						wvAttributes = value.copy()
 
-						if 'length' in value:
-							uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-							wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+						#if 'length' in value:
+							#uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+							#wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 						
 						uwAttributes['policosm'] = True
 						wvAttributes['policosm'] = True
@@ -142,9 +141,9 @@ def linkNode_OSM(graph, node, edge,diriged = False, bus=False, epsgCode=4326, le
 					uwAttributes = attributes.copy()
 					wvAttributes = attributes.copy()
 
-					if 'length' in attributes:
-						uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-						wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+					#if 'length' in attributes:
+						#uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+						#wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 					
 					uwAttributes['policosm'] = True
 					wvAttributes['policosm'] = True
@@ -166,9 +165,9 @@ def linkNode_OSM(graph, node, edge,diriged = False, bus=False, epsgCode=4326, le
 						uwAttributes = value.copy()
 						wvAttributes = value.copy()
 
-						if 'length' in value:
-							uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-							wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+						#if 'length' in value:
+							#uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+							#wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 						
 						uwAttributes['policosm'] = True
 						wvAttributes['policosm'] = True
@@ -187,9 +186,9 @@ def linkNode_OSM(graph, node, edge,diriged = False, bus=False, epsgCode=4326, le
 					uwAttributes = attributes.copy()
 					wvAttributes = attributes.copy()
 
-					if 'length' in attributes:
-						uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-						wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+					#if 'length' in attributes:
+						#uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+						#wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 					
 					uwAttributes['policosm'] = True
 					wvAttributes['policosm'] = True
@@ -298,9 +297,9 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 						uwAttributes = value.copy()
 						wvAttributes = value.copy()
 
-						if 'length' in value:
-							uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-							wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+						#if 'length' in value:
+							#uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+							#wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 						
 						uwAttributes['policosm'] = True
 						wvAttributes['policosm'] = True
@@ -356,9 +355,9 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 					uwAttributes = attributes.copy()
 					wvAttributes = attributes.copy()
 
-					if 'length' in attributes:
-						uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-						wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+					#if 'length' in attributes:
+						#uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+						#wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 					
 					uwAttributes['policosm'] = True
 					wvAttributes['policosm'] = True
@@ -415,9 +414,9 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 						uwAttributes = value.copy()
 						wvAttributes = value.copy()
 
-						if 'length' in value:
-							uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-							wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+						#if 'length' in value:
+							#uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+							#wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 						
 						uwAttributes['policosm'] = True
 						wvAttributes['policosm'] = True
@@ -473,9 +472,9 @@ def linkNode_OSM_Rtree(graph, node, dict_of_edge_id, diriged = False, details=Fa
 					uwAttributes = attributes.copy()
 					wvAttributes = attributes.copy()
 
-					if 'length' in attributes:
-						uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
-						wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
+					#if 'length' in attributes:
+						#uwAttributes['length'] = addMetricDistanceToEdge(ucoo[0], ucoo[1], w.x, w.y, epsgCode)
+						#wvAttributes['length'] = addMetricDistanceToEdge(vcoo[0], vcoo[1], w.x, w.y, epsgCode)
 					
 					uwAttributes['policosm'] = True
 					wvAttributes['policosm'] = True

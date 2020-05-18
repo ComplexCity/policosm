@@ -17,14 +17,16 @@ return
 '''
 
 import sys
+
 sys.path.insert(0, '/Users/fabien/workspace/github/policosm')
 
 
 def nearestNode(source, candidates):
-	nearestNode = {}
-	for key, point in candidates.iteritems():
-		nearestNode[source.distance(point)] = key
-	return min(nearestNode.keys()), nearestNode[min(nearestNode.keys())]
+    nearestNode = {}
+    for key, point in candidates.iteritems():
+        nearestNode[source.distance(point)] = key
+    return min(nearestNode.keys()), nearestNode[min(nearestNode.keys())]
+
 
 import itertools
 from operator import itemgetter
@@ -43,7 +45,7 @@ gpd1 = gpd.GeoDataFrame([['John', 1, Point(1, 1)],
                         columns=['Name', 'ID', 'geometry'])
 gpd2 = gpd.GeoDataFrame([['Work', LineString([Point(100, 0), Point(100, 1)])],
                          ['Shops', LineString([Point(101, 0), Point(101, 1), Point(102, 3)])],
-                         ['Home',  LineString([Point(101, 0), Point(102, 1)])]],
+                         ['Home', LineString([Point(101, 0), Point(102, 1)])]],
                         columns=['Place', 'geometry'])
 
 
@@ -61,5 +63,6 @@ def ckdnearest(gdfA, gdfB, gdfB_cols=['Place']):
         [gdfA, gdfB.loc[idx, gdfB_cols].reset_index(drop=True),
          pd.Series(dist, name='dist')], axis=1)
     return gdf
+
 
 c = ckdnearest(gpd1, gpd2)

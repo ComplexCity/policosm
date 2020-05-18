@@ -24,7 +24,7 @@ from shapely.geometry import Point, LineString
 sys.path.insert(0, '/Users/fabien/Documents/workspace/github/policosm')
 
 from policosm.functions.getRtree import getGraphRtree
-from policosm.geoNetworks.linkNewNodes import nearestEdgeFromPoint, addMetricDistanceToEdge
+from policosm.geoNetworks.linkNewNodes import nearestEdgeFromPoint
 from policosm.utils.levels import France
 
 class Distances(object):

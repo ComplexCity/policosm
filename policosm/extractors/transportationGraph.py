@@ -30,5 +30,5 @@ def transportationGraph(filename):
 	return transportation.info()
 
 if __name__ == "__main__":
-	print (transportationGraph('../tests/69123.pbf'))
+	print (transportationGraph('../../tests/data/69123.pbf'))
 	

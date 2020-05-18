@@ -38,6 +38,7 @@ from policosm.utils.access import get_access
 from policosm.utils.bicycles import get_bicycle
 from policosm.utils.levels import get_level
 from policosm.utils.projections import get_most_accurate_epsg
+from policosm.utils.serialization import geodataframe_to_geoparquet
 
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -228,9 +229,8 @@ def get_max_speed(tags):
 
 
 class Roads(osmium.SimpleHandler):
-    def __init__(self, verbose=False, directed=False, country_iso3='zzz'):
+    def __init__(self, directed:bool=False, country_iso3:str='zzz', level_upper_bound:int=8, level_lower_bound:int=2):
         osmium.SimpleHandler.__init__(self)
-        self.verbose = verbose
 
         self.directed = directed
         if self.directed:
@@ -246,6 +246,8 @@ class Roads(osmium.SimpleHandler):
 
         self.dfv = None
         self.dfe = None
+        self.level_upper_bound = level_upper_bound
+        self.level_lower_bound = level_lower_bound
 
     def node(self, n):
         osm_id = n.id
@@ -256,11 +258,6 @@ class Roads(osmium.SimpleHandler):
     def way(self, w):
         osm_id = w.id
         tags = w.tags
-
-        # if the way is not a highway ?
-        # -> bicycle
-        # -> foot
-        # else return
 
         attributes = dict()
         tags = {tag.k: tag.v for tag in w.tags}
@@ -292,11 +289,13 @@ class Roads(osmium.SimpleHandler):
         else:
             attributes['highway'] = tags['highway']
 
-        # 2 GENERAL oneway (oneway, reverse)
-        attributes['oneway'], attributes['reversed'], tags = get_one_way(tags, attributes['highway'])
-
-        # 3 GENERAL level according to highway
+        # 2 GENERAL level according to highway
         attributes['level'] = get_level(attributes['highway'])
+        if attributes['level'] > self.level_upper_bound or attributes['level'] < self.level_lower_bound:
+            return
+
+        # 3 GENERAL oneway (oneway, reverse)
+        attributes['oneway'], attributes['reversed'], tags = get_one_way(tags, attributes['highway'])
 
         # 4 GENERAL lanes according to level
         attributes['lanes'] = get_lanes(tags, attributes['level'], attributes['oneway'])
@@ -390,22 +389,32 @@ class Roads(osmium.SimpleHandler):
         df = pd.DataFrame.from_records(self.vertices_tuples, index='osm_id',
                                        columns=['osm_id', 'longitude', 'latitude'])
         df[['longitude', 'latitude']] = df[['longitude', 'latitude']].astype(float)
-        self.dfv = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude))
-        self.dfv.crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+        dfv = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude))
+        dfv.crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
         self.projection = 4326
 
         if project_to_meters:
-            sample_coordinates = tuple(self.dfv[['longitude', 'latitude']].sample(n=1).to_numpy()[0])
+            sample_coordinates = tuple(dfv[['longitude', 'latitude']].sample(n=1).to_numpy()[0])
             self.projection = get_most_accurate_epsg(sample_coordinates)
             logging.debug(
                 'projection for {}, {}: {}'.format(sample_coordinates[0], sample_coordinates[1], self.projection))
-            self.dfv.to_crs(epsg=self.projection, inplace=True)
+            dfv.to_crs(epsg=self.projection, inplace=True)
+
+        geoms = dict(zip(dfv.index.to_list(), dfv['geometry'].to_list()))
 
         logging.info('convert osm edges tuple to dataframe')
-        self.dfe = pd.DataFrame.from_records(self.edges_tuples, index='osm_id',
+        dfe = pd.DataFrame.from_records(self.edges_tuples, index='osm_id',
                                              columns=['osm_id', 'u', 'v', 'highway', 'one_way', 'level', 'lanes',
                                                       'width', 'bicycle', 'bicycle_safety',
                                                       'foot', 'foot_safety', 'max_speed', 'motorcar'])
+        dfe['source'] = dfe.u.apply(geoms.get)
+        dfe['target'] = dfe.v.apply(geoms.get)
+        dfe['line'] = dfe.apply(lambda e: [e.source, e.target], axis=1)
+        dfe.dropna(inplace=True)
+        dfe['geometry'] = dfe.line.apply(LineString)
+        dfe.drop(columns=['source', 'target', 'line'], inplace=True)
+        self.dfe = gpd.GeoDataFrame(dfe, geometry='geometry')
+        self.dfe.crs = "EPSG:{0}".format(self.projection)
 
     def processing_simplify(self):
         """
@@ -424,49 +433,37 @@ class Roads(osmium.SimpleHandler):
         self.dfe = gpd.GeoDataFrame(self.dfe, geometry='geometry')
         self.dfe.crs = "EPSG:{0}".format(self.projection)
 
-    def motocar_ways_only(self):
+    def motocar_ways_only(self) -> gpd.GeoDataFrame:
         """
         :return: edges geodataframe where motocar are allowed
         """
         return self.dfe.loc[self.dfe.motocar == 1]
 
-    def bicycle_ways_only(self):
+    def bicycle_ways_only(self) -> gpd.GeoDataFrame:
         """
         :return: edges geodataframe where bicycle are allowed
         """
         return self.dfe.loc[self.dfe.bicycle == 1]
 
-    def foot_ways_only(self):
+    def foot_ways_only(self) -> gpd.GeoDataFrame:
         """
         :return: edges geodataframe where bicycle are allowed
         """
         return self.dfe.loc[self.dfe.foot == 1]
-
-    def dump_dataframes(self, filename_vertices='test_graph_vertices.pkl', filename_edges='test_graph_edges.pkl'):
-        logging.info('dump geodataframes vertices and egdes to files')
-        self.dfv.to_pickle(filename_vertices)
-        self.dfe.to_pickle(filename_edges)
-
-    def load_dataframes(self, filename_vertices='test_graph_vertices.pkl', filename_edges='test_graph_edges.pkl'):
-        logging.info('load geodataframes vertices and egdes to files')
-        self.dfv = pd.read_pickle(filename_vertices)
-        self.dfv = gpd.GeoDataFrame(self.dfv, geometry='geometry')
-        self.dfv.crs = "EPSG:{0}".format(self.projection)
-
-        self.dfe = pd.read_pickle(filename_edges)
-        self.dfe = gpd.GeoDataFrame(self.dfe, geometry='geometry')
-        self.dfe.crs = "EPSG:{0}".format(self.projection)
 
 
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.DEBUG)
     logging.info('Start processing')
     roads = Roads(directed=True, country_iso3='fra')
-    # roads.apply_file('../tests/Paris.osm.pbf', locations=True)
-    # roads.osm_to_dataframes()
-    roads.projection = 3949
-    roads.load_dataframes()
-    roads.processing_simplify()
-    logging.debug('edge data frame - {}'.format(roads.dfe.info()))
-    roads.dump_dataframes(filename_edges='paris-edges.pkl', filename_vertices='paris-vertices.pkl')
+    roads.apply_file('../tests/01249.pbf', locations=True)
+    roads.osm_to_dataframes()
+    print(roads.dfe.head(n=2))
+    #roads.projection = 3949
+    #roads.dfe = geodataframe_read_geoparquet('/Users/fabien/Dropbox/Urban Data Hackathon/France-city-network/Paris-Directed-network/ile-cite-directed-edges.geoparquet')# roads.osm_to_dataframes()
+    #roads.dfv = geodataframe_read_pickle('paris-vertices.pkl',roads.projection)
+
     logging.info('dataframe info - {}'.format(roads.dfe.info()))
+    roads.dfe = simplify_directed_as_dataframe(roads.dfe)
+    logging.info('dataframe info - {}'.format(roads.dfe.info()))
+    geodataframe_to_geoparquet(roads.dfe, '/Users/fabien/Dropbox/Urban Data Hackathon/France-city-network/Paris-Directed-network/01249.geoparquet')

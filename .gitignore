@@ -6,4 +6,4 @@
 /policosm/classes/test_graph
 /policosm/classes/paris-vertices.pkl
 /policosm/classes/paris-edges.pkl
-/policosm/tests/Paris.osm.pbf
+/tests/data/Paris.osm.pbf

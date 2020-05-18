@@ -29,6 +29,6 @@ def buildingsPolygons(filename):
 	return buildings.getPolygons()
 
 if __name__ == "__main__":
-	polygons = buildingsPolygons('../tests/ajaccio-extract.osm')
+	polygons = buildingsPolygons('../../tests/data/ajaccio-extract.osm')
 	assert len(polygons['features']) == 40
 

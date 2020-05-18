@@ -209,7 +209,7 @@ def elements_du_graphe(fineGraph,isDiGraph,noDiGraph,keyOsmid,tags,members,nodes
 			return (fineGraph,noDiGraph,isDiGraph,count_node_itown,count_node_ntown,relation_station,relation_platforms,ways_in_relation, stations_to_actualize , nodes_residue)
 
 	# Information sur la ligne
-	# Lister les éléments contenus dans la zone d'export et dans la relation
+	# Lister les éléments contenus dans la zone d'readwrite et dans la relation
 
 	# SI on doit traiter une ligne de transport ou une relation de station de métro
 	if type_tr != 'stop_area' :

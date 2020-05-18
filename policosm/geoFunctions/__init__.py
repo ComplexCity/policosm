@@ -1,4 +1,3 @@
-from .compassBearing import *
-from .convertCoordinates import *
-from .distanceBetweenTwoPoints import *
+from .compass_bearing import *
+from .linestrings_operation import *
 from .nearest import *

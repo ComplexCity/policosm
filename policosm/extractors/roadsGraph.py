@@ -33,6 +33,6 @@ def roadsGraph(filename):
 
 
 if __name__ == "__main__":
-    graph = roadsGraph('../tests/minimal-example.osm')
+    graph = roadsGraph('../../tests/data/minimal-example.osm')
     assert len(graph.nodes()) == 5
     assert len(graph.edges()) == 4
